@@ -1,8 +1,5 @@
-# vpro-utility-docker
+# Intel(R) vPro All-Purpose Utility Container for Linux
 THE Intel vPro utility container for Linux OS!  A docker container that can be used for activation of Intel vPro AMT against, Intel EMA, vPro Fleet Services, Device Management ToolKit or standalone for Linux operating systems.
-
-
-# Intel(R) vPro Fleet Services activation agent container
 
 The Intel(R) vPro Fleet Services agent is used to provision Intel(R) AMT (Active Management Technologies, part of Intel(R) vPro) for use with the vPro Fleet Services cloud service.
 
