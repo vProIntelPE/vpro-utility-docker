@@ -1,0 +1,13 @@
+[Unit]
+Description=Executes launch script at container start
+After=multi-user.target
+
+[Service]
+Environment=SYSTEMD_LOG_LEVEL=debug
+Type=oneshot
+ExecStart=/usr/local/bin/vProUtil.sh start
+ExecStop=/usr/local/bin/vProUtil.sh stop
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target

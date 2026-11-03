@@ -1,0 +1,134 @@
+;*******************************************************************************
+;*                                                                            **
+;*                     I N T E L   P R O P R I E T A R Y                      **
+;*                                                                            **
+;*   COPYRIGHT (c) 1999-2021 BY INTEL CORPORATION. ALL RIGHTS RESERVED.  NO   **
+;*   PART  OF  THIS  PROGRAM OR PUBLICATION MAY BE REPRODUCED, TRANSMITTED,   **
+;*   TRANSCRIBED, STORED IN A RETRIEVAL  SYSTEM,  OR  TRANSLATED  INTO  ANY   **
+;*   LANGUAGE OR COMPUTER LANGUAGE IN ANY FORM OR BY ANY MEANS, ELECTRONIC,   **
+;*   MECHANICAL, MAGNETIC, OPTICAL, CHEMICAL, MANUAL, OR OTHERWISE, WITHOUT   **
+;*   THE PRIOR WRITTEN PERMISSION OF :                                        **
+;*                                                                            **
+;*                             INTEL CORPORATION                              **
+;*                                                                            **
+;*                          2200 MISSION COLLEGE BLVD                         **
+;*                                                                            **
+;*                     SANTA CLARA, CALIFORNIA 95052-8119                     **
+;*                                                                            **
+;*******************************************************************************
+;* mesrl.INF                                                                 **
+;*                                                                            **
+;*   Based on: MSPORTS.INF                                                    **
+;*             Copyright (c) 1994-1998 Microsoft Corporation                  **
+;*                                                                            **
+;******************************************************************************* 
+
+[version]
+signature="$Windows NT$"
+Class=Ports
+ClassGuid={4D36E978-E325-11CE-BFC1-08002BE10318}
+Provider=%Intel%
+CatalogFile = mesrl.cat
+DriverVer = 10/22/2025,2543.9.0.0
+PnpLockDown=1
+
+[DestinationDirs]
+DefaultDestDir  = 11        ;LDID_SYS
+
+
+; Drivers
+;----------------------------------------------------------
+[Manufacturer]
+%Intel%=Intel, ntamd64.10.0, NTx86.10.0
+
+[Intel.NTx86.10.0]
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_9D3D&CC_0700"		;ME11.x - SKL/SPT-LP, KBL/SPT-LP
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_A13D&CC_0700"		;ME11.0 - SKL/SPT-H
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_A2BD&CC_0700"		;ME11.6 - KBL/KBP-S
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_A1BD&CC_0700"		;ME11.x - Purley WS SKL/LBG - Production
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_A23D&CC_0700"		;ME11.x - Purley WS SKL/LBG - PreProduction
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_9DE3&CC_0700"		;ME12.0 - CNL/CNP-LP
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_A363&CC_0700"		;ME12.0 - CNL-H
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_34E3&CC_0700"		;ME13.0 - ICL-LP
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_3DE3&CC_0700"		;ME13.0 - ICL-H
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_02E3&CC_0700"		;ME14.0 - CML-LP
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_06E3&CC_0700"		;ME14.0 - CML-H
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_A3BD&CC_0700"		;ME14.x - CML-V
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_A0E3&CC_0700"		;ME15.0 - TGL-LP
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_43E3&CC_0700"		;ME15.0 - TGL-H
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_7AEB&CC_0700"   	;ME16.0 - ADL-S
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_51E3&CC_0700"   	;ME16.0 - ADL-P
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_54E3&CC_0700"   	;ME16.50 - ADL-N
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_7A6B&CC_0700"   	;ME17.0
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_7E73&CC_0700"   	;ME18.0
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_7F6B&CC_0700"   	;ME19.0
+
+[Intel.ntamd64.10.0]
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_9D3D&CC_0700"		;ME11.x - SKL/SPT-LP, KBL/SPT-LP
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_A13D&CC_0700"		;ME11.0 - SKL/SPT-H
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_A2BD&CC_0700"		;ME11.6 - KBL/KBP-S
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_A1BD&CC_0700"		;ME11.x - Purley WS SKL/LBG - Production
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_A23D&CC_0700"		;ME11.x - Purley WS SKL/LBG - PreProduction
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_9DE3&CC_0700"		;ME12.0 - CNL/CNP-LP
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_A363&CC_0700"		;ME12.0 - CNL-H
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_34E3&CC_0700"		;ME13.0 - ICL-LP
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_3DE3&CC_0700"		;ME13.0 - ICL-H
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_02E3&CC_0700"		;ME14.0 - CML-LP
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_06E3&CC_0700"		;ME14.0 - CML-H
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_A3BD&CC_0700"		;ME14.x - CML-V
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_A0E3&CC_0700"		;ME15.0 - TGL-LP
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_43E3&CC_0700"		;ME15.0 - TGL-H
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_1BE3&CC_0700"   	;ME15.0 - Emmitsburg (Eagle Stream)
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_7AEB&CC_0700"   	;ME16.0 - ADL-S
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_51E3&CC_0700"   	;ME16.0 - ADL-P
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_54E3&CC_0700"   	;ME16.50 - ADL-N
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_7A6B&CC_0700"   	;ME17.0
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_7E73&CC_0700"   	;ME18.0 - MTL
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_7773&CC_0700"   	;ME18.0 - ARL-H
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_7F6B&CC_0700"   	;ME19.0 - MTL
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_A873&CC_0700"   	;ME20.0 
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_E373&CC_0700"   	;ME21.0 - H
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_E473&CC_0700"   	;ME21.0 - P
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_4D73&CC_0700"   	;ME21.50 - PCD
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_6E6B&CC_0700"   	;ME22.0 - S
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_D273&CC_0700"   	;ME23.0 - P
+%SRL_DeviceDesc% = Intel_ComPort, "PCI\VEN_8086&DEV_D373&CC_0700"   	;ME23.0 - H
+
+
+; COM sections
+;----------------------------------------------------------
+; Do not use msports::ComPort, it has 'LogConfig' which is not Universal. Instead, use Serial
+[Intel_ComPort.NT]
+AddReg=Intel_ComPort.NT.AddReg
+Include=msports.inf
+Needs=Serial.NT
+
+;For adding 'Port Settings' tab. HSD 1308609664.
+[Intel_ComPort.NT.AddReg]
+HKR,,EnumPropPages32,,"MsPorts.dll,SerialPortPropPageProvider"
+
+; Here we use msports::ComPort.NT.HW, because Serial does not have HW directive
+[Intel_ComPort.NT.HW]
+Include=msports.inf
+Needs=ComPort.NT.HW
+
+
+;-------------- Service installation
+; Port Driver (function driver for this device)
+; Here we use msports::ComPort, because Serial.NT.Services does not have 0x00000002 (SPSVCINST_ASSOCSERVICE) flag
+[Intel_ComPort.NT.Services]
+Include=msports.inf
+Needs=ComPort.NT.Services
+
+
+
+; User readable strings
+;----------------------------------------------------------
+[Strings]
+
+Intel="Intel"
+
+Serial.SVCDESC  = "Serial port driver"
+Serenum.SVCDESC = "Serenum Filter Driver"
+
+SRL_DeviceDesc = "Intel(R) Active Management Technology - SOL"

@@ -1,0 +1,91 @@
+; Copyright (C), Intel Corporation. All rights reserved. 
+; ********************************************************************************************** 
+; **    Filename:  SolLmsExtension.inf 
+; ********************************************************************************************** 
+[Version] 
+Signature = "$Windows NT$" 
+Class = Extension
+ClassGuid = {e2f84ce7-8efa-411c-aa69-97454ca4cb57}
+Provider = %ManufacturerName%
+CatalogFile = SOLLMSExtension.cat
+ExtensionId = {72522ea3-94a8-4184-92c8-88769998a634}
+DriverVer = 10/22/2025,2543.9.0.0
+PnpLockDown=1
+
+[Manufacturer] 
+%ManufacturerName%=Intel, NTx86.10.0...16299, NTamd64.10.0...16299
+
+;******************************************************************************
+;*
+;* 64-BIT X86 ARCHITECTURE
+;*
+;* This section specifies the 64-bit architecture specific INF file entries
+;* required to install a driver as a 64-bit compatible driver.
+;*
+;******************************************************************************
+
+[Intel.NTx86.10.0...16299]
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_9D3D&CC_0700"		;ME11.x - SKL/SPT-LP, KBL/SPT-LP
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_A13D&CC_0700"		;ME11.0 - SKL/SPT-H
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_A2BD&CC_0700"		;ME11.6 - KBL/KBP-S
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_A1BD&CC_0700"		;ME11.x - Purley WS SKL/LBG - Production
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_A23D&CC_0700"		;ME11.x - Purley WS SKL/LBG - PreProduction
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_9DE3&CC_0700"		;ME12.0 - CNL/CNP-LP
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_A363&CC_0700"		;ME12.0 - CNL-H
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_02E3&CC_0700"		;ME14.0 - CML-LP
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_06E3&CC_0700"		;ME14.0 - CML-H
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_A3BD&CC_0700"		;ME14.x - CML-V
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_A0E3&CC_0700"		;ME15.0 - TGL-LP
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_43E3&CC_0700"		;ME15.0 - TGL-H
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_1BE3&CC_0700"      ;ME15.0 - Emmitsburg (Eagle Stream)
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_7AEB&CC_0700"   	;ME16.0 - ADL-S
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_51E3&CC_0700"   	;ME16.0 - ADL-P
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_54E3&CC_0700"   	;ME16.50 - ADL-N
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_7A6B&CC_0700"   	;ME17.0
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_7E73&CC_0700"   	;ME18.0
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_7F6B&CC_0700"   	;ME19.0
+
+[Intel.NTamd64.10.0...16299]
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_9D3D&CC_0700"		;ME11.x - SKL/SPT-LP, KBL/SPT-LP
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_A13D&CC_0700"		;ME11.0 - SKL/SPT-H
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_A2BD&CC_0700"		;ME11.6 - KBL/KBP-S
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_A1BD&CC_0700"		;ME11.x - Purley WS SKL/LBG - Production
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_A23D&CC_0700"		;ME11.x - Purley WS SKL/LBG - PreProduction
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_9DE3&CC_0700"		;ME12.0 - CNL/CNP-LP
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_A363&CC_0700"		;ME12.0 - CNL-H
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_02E3&CC_0700"		;ME14.0 - CML-LP
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_06E3&CC_0700"		;ME14.0 - CML-H
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_A3BD&CC_0700"		;ME14.x - CML-V
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_A0E3&CC_0700"		;ME15.0 - TGL-LP
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_43E3&CC_0700"		;ME15.0 - TGL-H
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_1BE3&CC_0700"   	;ME15.0 - Emmitsburg (Eagle Stream)
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_7AEB&CC_0700"   	;ME16.0 - ADL-S
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_51E3&CC_0700"   	;ME16.0 - ADL-P
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_54E3&CC_0700"   	;ME16.50 - ADL-N
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_7A6B&CC_0700"   	;ME17.0
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_7A6B&CC_0700"   	;ME17.0
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_7E73&CC_0700"   	;ME18.0 - MTL
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_7773&CC_0700"   	;ME18.0 - ARL-H
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_7F6B&CC_0700"   	;ME19.0 - MTL
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_A873&CC_0700"   	;ME20.0
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_E373&CC_0700"   	;ME21.0 - H
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_E473&CC_0700"   	;ME21.0 - P
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_4D73&CC_0700"   	;ME21.50 - PCD
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_D273&CC_0700"   	;ME23.0 - P
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_6E6B&CC_0700"   	;ME22.0 - S
+%ImssHsaExtension.DisplayName% = SolLmsExtension_install, "PCI\VEN_8086&DEV_D373&CC_0700"   	;ME23.0 - H
+
+
+[SolLmsExtension_install]
+; Empty
+
+
+[SolLmsExtension_install.Components]
+AddComponent = OEM_LMS_component,,OEMExt_LMSComponentInstall
+
+[OEMExt_LMSComponentInstall]
+ComponentIds=5DCEB103-DD64-403C-A17C-94FC5F917A9C ;LMS
+
+[Strings] 
+ManufacturerName = "Intel"
+ImssHsaExtension.DisplayName = "Intel(R) SOL LMS Extension"

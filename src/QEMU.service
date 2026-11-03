@@ -1,0 +1,14 @@
+[Unit]
+Description=Launches QEMU instance at container start
+After=multi-user.target
+
+[Service]
+Environment=SYSTEMD_LOG_LEVEL=debug
+Type=forking
+EnvironmentFile=/envars
+ExecStart=/bin/bash -c "/run/entry.sh > /dev/console &"
+ExecStop=echo "system_powerdown" | nc -U /run/shm/monitor.sock 
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target

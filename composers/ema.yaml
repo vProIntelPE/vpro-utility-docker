@@ -1,0 +1,77 @@
+#####################################################################
+# Intel(R) vPro utility for Linux - a containerized collection      #
+#    of utilities to assist with provisioning and day-to-day        #
+#    management of vPro endpoints running Linux                     #
+#                                                                   #
+# Intel(R) Endpoint Management Assistant v1.15 version              #
+#                                                                   #
+#####################################################################
+services:                                                           #
+  vproutil-ema:                                                     #
+    image: vproutil:1.15.1                                          #
+    container_name: vproutil-ema                                    #
+    stop_signal: SIGRTMIN+3                                         #
+    environment:                                                    # .env file in this directory
+      VERSION: "core11"                                             #
+      RAM_SIZE: "4G"                                                #
+      DISK_SIZE: "16G"                                              # 16G is the minimum, reliable size
+      #LLOCATE: "Y"                                                 #
+      HOST: "${HOSTNAME}"                                           #
+      USERNAME: "${USERNAME}"                                       #
+      PASSWORD: "${PASSWORD}"                                       #
+      DNSMASQ_OPTS: "${DNSMASQ_OPTS}"                               #
+      ARGUMENTS: "${ARGUMENTS}"                                     #
+    networks:                                                       # reliable DNS suffix propogation
+      - vpronet                                                     #
+    security_opt:                                                   #
+      - apparmor=unconfined                                         #
+    extra_hosts:                                                    # Enables VM-to-host data share
+      - "host.docker.internal:host-gateway"                         #
+    devices:                                                        # The /dev directory is shared as a
+      - /dev/vhost-net                                              #   volume however, these devices
+      - /dev/kvm                                                    #   must use standard definition
+      - /dev/net/tun                                                #
+    cgroup: host                                                    #
+    cap_add:                                                        #
+      - NET_ADMIN                                                   #
+      - SYS_ADMIN                                                   #
+    ports:                                                          #
+      - 623:623                                                     #
+      - 664:664                                                     #
+      - 8006:8006                                                   # TCP:8006 mapping can be removed
+      - 16990-16995:16990-16995                                     #   VNC to VM (troubleshooting)
+    volumes:                                                        #
+      - ./src/entry.sh:/var/dockur/run/entry.sh                     #
+      - ./src/define.sh:/var/dockur/run/define.sh                   #
+      - ./src/EmaEntryPoint.sh:/usr/local/bin/entrypoint.sh         #
+      - ./src/vProUtil.sh:/usr/local/bin/vProUtil.sh                # MAIN script for host and container
+      - ./src/EmaInit.service:/etc/systemd/system/MainInit.service  #
+      - ./src/QEMU.service:/etc/systemd/system/QEMU.service         # 
+      - ./oem:/oem                                                  # installer launch repo (install.bat)
+      - ./shared:/shared                                            #   - calls install.ps1 in data share
+      - ./storage:/storage                                          # primary storage - vHDD location
+      - ./iso/core11.iso:/custom.iso                                # we must have and use a local ISO (install.sh)
+      - /lib/modules:/lib/modules                                   # ^
+      - /dev:/dev:rw                                                # |
+      - /sys/bus/pci/devices:/sys/bus/pci/devices:rw                # |
+      - /sys/bus/mei:/sys/bus/mei:rw                                # |
+      - /sys/bus/pci/drivers:/sys/bus/pci/drivers:rw                # |
+      - /sys/module:/sys/module:rw                                  # |
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw                            # hardware passing reqs.
+    tmpfs:                                                          #
+      - /run:exec,size=1024M                                        # supersede use of /run in source
+    hostname: "${HOSTNAME}-con.${DNS_SUFFIX}"                       # ACM provisioning req (DNS suffix)
+    dns_search:                                                     # ^
+      - "${DNS_SUFFIX}"                                             # |
+    stdin_open: true                                                # |
+    tty: true                                                       # |
+    restart: "no"                                                   # |
+    stop_grace_period: 1m                                           # |
+    privileged: true                                                # |
+    device_cgroup_rules:                                            # |
+      - 'c *:* rwm'                                                 # |
+                                                                    # |
+networks:                                                           # |
+  vpronet:                                                          # these options can not change much
+    driver: bridge                                                  #   Hostname and DNS suffix MUST be
+    name: vpro-net                                                  #   correct for ACM

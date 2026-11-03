@@ -1,0 +1,18 @@
+//SPDX-License-Identifier: Apache-2.0
+//Copyright (C) 2009-2010 Intel Corporation
+//wmi specific
+//create namespace
+#pragma namespace("\\\\.\\root")
+
+instance of __Namespace {
+	name="Intel_ME";
+};
+
+#pragma namespace("\\\\.\\root\\Intel_ME")
+
+//delete existing classes
+#pragma deleteclass("CIM_ManagedElement", nofail)
+#pragma deleteclass("CIM_Dependency", nofail)
+
+///end wmi specific
+#pragma include ("ME_schema.mof")

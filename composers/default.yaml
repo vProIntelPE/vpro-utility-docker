@@ -1,0 +1,42 @@
+########################################################################
+# Intel(R) vPro utility for Linux - a containerized collection         #
+#    of utilities to assist with provisioning and day-to-day           #
+#    management of vPro endpoints running Linux                        #
+#                                                                      #
+# Includes:                                                            #
+# Intel(R) vPro Fleet Services vAgent for Linux v1.2.6                 #
+#                                                                      #
+# Also includes:                                                       #
+#   - Device Management Tool Kit RPC v2.52.7                           #
+#   - Local Manageability Service v2605                                #
+#                                                                      #
+########################################################################
+services:                                                              #
+  vproutil-default:                                                    #
+    image: vproutil:1.15.1                                             #
+    container_name: vproutil-default                                   #
+    stop_signal: SIGRTMIN+3                                            #
+    devices:                                                           # 
+      - /dev/mei0                                                      #
+    env_file:                                                          #
+      - ./.env                                                         #
+    cgroup: host                                                       #
+    ports:                                                             #
+      - 623:623                                                        #
+      - 664:664                                                        #
+      - 16990-16995:16990-16995                                        #
+    volumes:                                                           #
+      - ./shared/data:/agent/.data                                     #
+      - ./shared/logs:/agent/logs                                      #
+      - ./shared:/shared                                               #
+      - ./src/DefaultEntryPoint.sh:/usr/local/bin/entrypoint.sh        #
+      - ./src/vProUtil.sh:/usr/local/bin/vProUtil.sh                   #
+      - ./src/DefaultInit.service:/etc/systemd/system/MainInit.service #
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw                               # Required to delegate hardware control
+    hostname: "${HOSTNAME}.${DNS_SUFFIX}"                              # Container name - ACM provisioning req.
+    dns_search:                                                        # ^
+      - "${DNS_SUFFIX}"                                                # |
+    stdin_open: true                                                   # |
+    tty: true                                                          # |
+    restart: "no"                                                      # |
+    privileged: true                                                   # |

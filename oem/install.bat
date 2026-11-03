@@ -1,0 +1,3 @@
+@echo off
+echo Launching PowerShell installation script...
+start /MAX "Setting up Intel(R) EMA vAgent for Linux" /I PowerShell.exe -ExecutionPolicy Bypass -File "\\host.lan\data\install.ps1"

@@ -1,0 +1,164 @@
+; SPDX-License-Identifier: Apache-2.0
+; Copyright (C) 2021-2023 Intel Corporation
+
+;======================================================================
+; Installation INF for the Intel(R) Management Engine WMI Provider
+; Component INF
+;======================================================================
+[Version]
+Signature="$WINDOWS NT$"
+Class=SoftwareComponent
+ClassGuid={5c4c3332-344d-483c-8739-259e934c9cc8}
+Provider=%ManufacturerName%
+CatalogFile=MEWMIProv.cat
+DriverVer = 11/13/2025,2546.9.2.0
+PnpLockdown=1
+
+[SourceDisksNames]
+1 = %DiskId%
+2 = %DiskId%,,,\ME\MEMofs
+
+[SourceDisksFiles]
+MEProv.dll                  = 1
+WMIRegistrationService.exe  = 1
+
+ME_Schema.mof               = 1, ME
+register.mof                = 1, ME
+remove.mof                  = 1, ME
+wmi_build.mof               = 1, ME
+
+CIM_Component.mof    = 1, "ME\s\Core"
+CIM_ConcreteJob.mof    = 1, "ME\s\Core"
+CIM_Dependency.mof    = 1, "ME\s\Core"
+CIM_EnabledLogicalElement.mof    = 1, "ME\s\Core"
+CIM_Job.mof    = 1, "ME\s\Core"
+CIM_LogicalElement.mof    = 1, "ME\s\Core"
+CIM_ManagedElement.mof    = 1, "ME\s\Core"
+CIM_ManagedSystemElement.mof    = 1, "ME\s\Core"
+CIM_Service.mof    = 1, "ME\s\Core"
+CIM_SettingData.mof    = 1, "ME\s\Core"
+CIM_System.mof    = 1, "ME\s\Core"
+
+CIM_ComputerSystem.mof    = 1, "ME\s\System"
+CIM_LogEntry.mof    = 1, "ME\s\System"
+CIM_RecordForLog.mof    = 1, "ME\s\System"
+
+CIM_Credential.mof    = 1, "ME\s\User"
+
+AMT_EthernetPortSettings.mof    = 1, "ME\MEMofs"
+AMT_ProvisioningCertificateHash.mof    = 1, "ME\MEMofs"
+AMT_Service.mof    = 1, "ME\MEMofs"
+AMT_SetupAuditRecord.mof    = 1, "ME\MEMofs"
+AMT_ConcreteComponent.mof    = 1, "ME\MEMofs"
+AMT_HostedService.mof    = 1, "ME\MEMofs"
+ME_Event.mof    = 1, "ME\MEMofs"
+ME_System.mof    = 1, "ME\MEMofs"
+OOB_Service.mof    = 1, "ME\MEMofs"
+
+[DestinationDirs]
+DefaultDestDir = 13
+MEWMIProv_Files_ME = 13, ME
+MEWMIProv_Files_cim_s_core = 13, "ME\s\Core"
+MEWMIProv_Files_cim_s_system = 13, "ME\s\System"
+MEWMIProv_Files_cim_s_user = 13, "ME\s\User"
+MEWMIProv_Files_MEMofs = 13, "ME\MEMofs"
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Intel,NTx86.10.0...16299, NTamd64.10.0...16299
+
+[Intel.NTx86.10.0...16299]
+%MEWMIProvDescription% = MEWMIProvInstallSection, SWC\06657A6D-FE0F-4C90-8DDA-A1501C74CE4B
+
+[Intel.NTamd64.10.0...16299]
+%MEWMIProvDescription% = MEWMIProvInstallSection, SWC\06657A6D-FE0F-4C90-8DDA-A1501C74CE4B
+
+
+[MEWMIProvInstallSection]
+CopyFiles = MEWMIProv_Files, MEWMIProv_Files_ME, MEWMIProv_Files_cim_s_core, MEWMIProv_Files_cim_s_system, MEWMIProv_Files_cim_s_user, MEWMIProv_Files_MEMofs
+Addreg    = WMIProv_COMServer_AddReg
+
+[MEWMIProvInstallSection.Services]
+AddService = , 0x00000002
+AddService = WMIRegistrationService, %SPSVCSINST_STARTSERVICE%, WMIRegistrationService_Service_Inst, WMIRegistrationService_EventLog, Application
+
+; -------------- WMIRegistrationService install sections
+[WMIRegistrationService_Service_Inst]
+DisplayName    = "Intel(R) Management Engine WMI Provider Registration"
+Description    = "Intel(R) Management Engine WMI Provider Registration Service"
+ServiceType    = 0x00000010      ; SERVICE_WIN32_OWN_PROCESS
+StartType      = 2               ; SERVICE_AUTO_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = "%13%\WMIRegistrationService.exe"
+
+[WMIRegistrationService_EventLog]
+AddReg = WMIRegistrationService_EventLog_AddReg
+
+[WMIRegistrationService_EventLog_AddReg]
+HKR,,EventMessageFile,0x00020000,"%13%\WMIRegistrationService.exe"
+HKR,,TypesSupported,0x00010001,7
+
+[WMIProv_COMServer_AddReg]
+HKCR,WOW6432Node\CLSID\{73C0325A-D3BF-48AF-9F37-1589CC58E788},,,"IntelMEProv"
+HKCR,WOW6432Node\CLSID\{73C0325A-D3BF-48AF-9F37-1589CC58E788}\InprocServer32,,0x00020000,"%13%\MEProv.dll"
+HKCR,WOW6432Node\CLSID\{73C0325A-D3BF-48AF-9F37-1589CC58E788}\InprocServer32,ThreadingModel,,"Both"
+
+; For event logs translation
+HKLM,"SYSTEM\CurrentControlSet\Services\eventlog\Application\MEProv","CategoryMessageFile",0x00020000,"%13%\MEProv.dll"
+HKLM,"SYSTEM\CurrentControlSet\Services\eventlog\Application\MEProv","EventMessageFile",0x00020000,"%13%\MEProv.dll"
+HKLM,"SYSTEM\CurrentControlSet\Services\eventlog\Application\MEProv","TypesSupported",0x00010001,7
+HKLM,"SYSTEM\CurrentControlSet\Services\eventlog\Application\MEProv","CategoryCount",0x00010001,2
+HKLM,"SYSTEM\CurrentControlSet\Services\eventlog\Application\MEProv","MaxSize",0x00010001,524288
+
+; --------- Files ----------------------
+[MEWMIProv_Files]
+MEProv.dll
+WMIRegistrationService.exe
+
+[MEWMIProv_Files_ME]
+ME_Schema.mof
+register.mof
+remove.mof
+wmi_build.mof
+
+[MEWMIProv_Files_cim_s_core]
+CIM_Component.mof
+CIM_ConcreteJob.mof
+CIM_Dependency.mof
+CIM_EnabledLogicalElement.mof
+CIM_Job.mof
+CIM_LogicalElement.mof
+CIM_ManagedElement.mof
+CIM_ManagedSystemElement.mof
+CIM_Service.mof
+CIM_SettingData.mof
+CIM_System.mof
+
+[MEWMIProv_Files_cim_s_system]
+CIM_ComputerSystem.mof
+CIM_LogEntry.mof
+CIM_RecordForLog.mof
+
+[MEWMIProv_Files_cim_s_user]
+CIM_Credential.mof
+
+[MEWMIProv_Files_MEMofs]
+AMT_EthernetPortSettings.mof
+AMT_ProvisioningCertificateHash.mof
+AMT_Service.mof
+AMT_SetupAuditRecord.mof
+AMT_ConcreteComponent.mof
+AMT_HostedService.mof
+ME_Event.mof
+ME_System.mof
+OOB_Service.mof
+
+[Strings]
+SPSVCSINST_STARTSERVICE= 0x00000800
+
+MEWMIProvDescription="Intel(R) Management Engine WMI Provider"
+DiskId = "Intel(R) Management Engine WMI Provider Installation Disk"
+ManufacturerName="Intel"
