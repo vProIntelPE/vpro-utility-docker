@@ -189,6 +189,8 @@ RUN echo "$VERSION_ARG" > /etc/version
 #
 #    Check out the source project at: https://github.com/dockur/windows
 #
+EXPOSE 8006
+EXPOSE 16990-16995
 VOLUME /storage
 ENV VERSION="core11"
 ENV RAM_SIZE="4G"
