@@ -52,12 +52,9 @@ install() {
         sleep 3
         check_boot
     fi
-    # echo -e "${wht}The system may need configuration changes in order to support the Intel(R) EMA vAgent\nand some of these changes may require a reboot.\n"
     sleep 3
     check_lms
     sleep 3
-    # check_boot
-    # sleep 3
     check_wdir
     sleep 3
     check_env
