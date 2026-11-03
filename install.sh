@@ -112,6 +112,7 @@ check_lms() {
 check_boot() {
     # Check kernel command line parameter - iommu must be enabled for proper functionality
     #
+    sysMessOne="=     Checking to see if the current configuration of this endpoint meets the pre-requisites...     ="
     sysMessTwo="=                              Checking kernel CMDLINE parameters...                                ="
     draw_header
     tput cup 4 0
