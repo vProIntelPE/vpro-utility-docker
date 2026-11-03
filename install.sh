@@ -184,13 +184,19 @@ check_env() {
                 fi
             fi
         fi
-        if [[ -z "$mePCIrt" || -z "$solPCIrt" ]]; then
-            echo -e "${yel}No ME or SoL PCI addresses found.  The default values will need to edited in the .env file.${rst}"
-            echo "MEADDR=\"00:16.0\"" >> .env
-            echo "SOLADDR=\"00:16.3\"" >> .env
-        else
-            echo "MEADDR=\"$mePCIrt\"" >> .env
-            echo "SOLADDR=\"$solPCIrt\"" >> .env
+        if [[ "$installType" == "--ema" ]]; then
+            echo -e "${cya}Checking PCI device addresses...${rst}"
+            source src/vProUtil.sh find_addr
+            sleep 0.25
+            if [[ -z "$mePCIrt" || -z "$solPCIrt" ]]; then
+                echo -e "${yel}No ME or SoL PCI addresses found. \
+                  The default values may need to edited in the .env file.${rst}"
+                echo "MEADDR=\"00:16.0\"" >> .env
+                echo "SOLADDR=\"00:16.3\"" >> .env
+            else
+                echo "MEADDR=\"$mePCIrt\"" >> .env
+                echo "SOLADDR=\"$solPCIrt\"" >> .env
+            fi
         fi
         echo "$envTemp" >> .env
     else
@@ -213,7 +219,7 @@ download_core11() {
     draw_header
     tput cup 4 0
     tput ed
-    if [[ -z "$(ls -l iso/ | grep core11.iso)" ]]; then
+    if [[ -z "$(ls -l iso/ | grep -o core11.iso)" ]]; then
         echo -e "${blu}Downloading the Tiny Core 11 modified version of Windows 11 25H2..."
         license_warn
         wget -O ./iso/core11.iso \
