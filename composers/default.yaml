@@ -38,5 +38,5 @@ services:                                                              #
       - "${DNS_SUFFIX}"                                                # |
     stdin_open: true                                                   # |
     tty: true                                                          # |
-    restart: "no"                                                      # |
+    restart: "unless-stopped"                                          # |
     privileged: true                                                   # |

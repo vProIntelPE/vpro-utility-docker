@@ -13,7 +13,7 @@ set +a
 # Set a default password if none specified
 #
 if [[ -z "$AMTPASSWORD" ]]; then
-    AMTPASSWORD="P@ssw0rd"
+    AMTPASSWORD="NotAG00dP@ssw0rd"
 fi
 #
 #
@@ -22,6 +22,10 @@ vfs_activation() {
     echo -e "\nPurging cache and any old logs..." > /dev/console
     rm -fR /agent/.data/*
     rm -fR /agent/logs/*
+    echo -e "\nCopying pairing token to /agent directory and renaming to /shared/.UsedToken..." > /dev/console
+    cp /shared/PairingToken /agent/
+    sleep .250
+    mv /shared/PairingToken /shared/.UsedToken
     sleep 2
     echo -e "\nIntel(R) vPro Fleet Services agent is activating this device." > /dev/console
     echo -e "\n\n\n***** Please leave the device powered on. *****\n\n\n" > /dev/console
@@ -31,16 +35,18 @@ vfs_activation() {
     if grep -q -m 1 -o "Activation result: Finished successfully" /agent/logs/*; then
         echo -e "Success! This device can now be managed in Intel(R) vPro Fleet Services!\n\n\n" > /dev/console
     else
-        echo "This device was not able to be activated.  Please review the logs and resolve any outstanding issues." > /dev/console
+        echo -e "     **** This device was NOT able to be activated. ****\
+          \n**** Please review the logs and resolve activation-blocking issues. ****" > /dev/console
         echo -e "\n\n" > /dev/console
         echo "The most common causes of a failed activation are:" > /dev/console
         echo " - Non-Intel network connection.  This includes:" > /dev/console
-        echo "   - Connected to a non-AMT approved docking station" > /dev/console
-        echo "   - Active VPN connections" > /dev/console
+        echo "   - Connected to a non-AMT compatible dock" > /dev/console
+        echo "   - Active VPN connection" > /dev/console
         echo " - Outbound traffic restrictions.  Such as:" > /dev/console
         echo "   - Proxy configuration required" > /dev/console
         echo "   - Port 4433 or 8443 blocked" > /dev/console
-        echo -e "Review the guides in the vPro Fleet Services web portal for additional troubleshooting information.\n\n\n" > /dev/console
+        echo -e "Review the guides in the vPro Fleet Services web portal for additional \
+           troubleshooting information.\n\n\n" > /dev/console
     fi
 }
 
