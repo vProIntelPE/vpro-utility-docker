@@ -80,7 +80,7 @@ After=vProHostSvc.service
 
 [Service]
 ExecStart=
-ExecStart=-/sbin/agetty -o '-p -- \\u' -L 115200 %I $TERM
+ExecStart=-/sbin/agetty -o '-p -- \\u' -L 115200 %I ansi
 RestartSec=2
 EOF
     systemctl daemon-reload
