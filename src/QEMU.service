@@ -6,8 +6,10 @@ After=multi-user.target
 Environment=SYSTEMD_LOG_LEVEL=debug
 Type=forking
 EnvironmentFile=/envars
-ExecStart=/bin/bash -c "/run/entry.sh > /dev/console &"
-ExecStop=echo "system_powerdown" | nc -U /run/shm/monitor.sock 
+ExecStart=/bin/bash -c '/run/entry.sh > /dev/console &'
+ExecStop=/bin/bash -c 'echo "system_powerdown" | nc -U /run/shm/monitor.sock -q 10'
+TimeoutStopSec=20
+KillMode=mixed
 RemainAfterExit=true
 
 [Install]

@@ -103,12 +103,15 @@ Function Set-InstallAgent {
 Function Set-Reboot {
     Write-Host -ForegroundColor CYAN "`n`nDoing a little cleanup before we reboot..."
     Start-Process Dism.exe -ArgumentList "/online /Cleanup-Image /StartComponentCleanup /ResetBase" -Wait -NoNewWindow
-    Write-Host -ForegroundColor BLUE "`n`nREBOOTING NOW!"
-    shutdown -r -t 10 -f
+    # Optional: change to a reboot rather than agent start if a "reboot pending" condition arises 
+    # Write-Host -ForegroundColor BLUE "`n`nREBOOTING NOW!"
+    # shutdown -r -t 10 -f
+    Start-Service EmaAgent
 }
 
 Function Main-Execution {
-    Set-Hostname
+    # Un-comment the line below to "force" hostname updates - "Set-Reboot" function should be adjusted as well
+    # Set-Hostname
     Set-Console
     Set-LMS
     Set-PSProfile

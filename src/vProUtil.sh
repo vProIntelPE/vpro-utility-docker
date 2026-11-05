@@ -189,7 +189,7 @@ start_ema() {
 
 stop_ema() {
     sleep 1
-    systemctl stop QEMU
+    systemctl stop --force --quiet QEMU.service
     sleep 1
     stop_driver
 }
@@ -311,7 +311,7 @@ stop() {
     echo "Nothing to see here...move along!"
 }
 
-vconsole_only() {
+vconsole() {
     # Check symlink compose file to see if we're needed
     if [[ -n "$(ls -l docker-compose.yaml 2> /dev/null | grep -o -w 'default')" ]]; then
         return
@@ -333,7 +333,7 @@ vconsole_only() {
     done
 }
 
-vconsole() {
+vconsole_hdd() {
     # Check symlink compose file to see if we're needed
     if [[ -n "$(ls -l docker-compose.yaml 2> /dev/null | grep -o -w 'default')" ]]; then
         return

@@ -33,7 +33,7 @@ services:                                                              #
       - ./src/vProUtil.sh:/usr/local/bin/vProUtil.sh                   #
       - ./src/DefaultInit.service:/etc/systemd/system/MainInit.service #
       - /sys/fs/cgroup:/sys/fs/cgroup:rw                               # Required to delegate hardware control
-    hostname: "${HOSTNAME}.${DNS_SUFFIX}"                              # Container name - ACM provisioning req.
+    hostname: "${HOSTNAME}.${DNS_SUFFIX}"                              # Required for ACM provisioning
     dns_search:                                                        # ^
       - "${DNS_SUFFIX}"                                                # |
     stdin_open: true                                                   # |

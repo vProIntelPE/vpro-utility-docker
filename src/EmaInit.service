@@ -4,9 +4,12 @@ After=multi-user.target
 
 [Service]
 Environment=SYSTEMD_LOG_LEVEL=debug
-Type=oneshot
-ExecStart=/usr/local/bin/vProUtil.sh start_ema
-ExecStop=/usr/local/bin/vProUtil.sh stop_ema
+Type=forking
+ExecStart=/bin/bash -c '/usr/local/bin/vProUtil.sh start_ema'
+ExecStop=/bin/bash -c 'echo "system_powerdown" | nc -U /run/shm/monitor.sock -q 10 &'
+ExecStop=/bin/bash -c '/usr/local/bin/vProUtil.sh stop_ema'
+TimeoutStopSec=30
+KillMode=mixed
 RemainAfterExit=true
 
 [Install]

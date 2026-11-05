@@ -14,12 +14,17 @@ services:                                                           #
     environment:                                                    # .env file in this directory
       VERSION: "core11"                                             #
       RAM_SIZE: "4G"                                                #
+      STORAGE: "/storage"                                           #
       DISK_SIZE: "16G"                                              # 16G is the minimum, reliable size
-      #LLOCATE: "Y"                                                 #
+      DISK_FMT: "qcow2"                                             #
+      BOOT_MODE: "windows_secure"                                   #
+      LOGO: "Y"                                                     #
       HOST: "${HOSTNAME}"                                           #
       USERNAME: "${USERNAME}"                                       #
       PASSWORD: "${PASSWORD}"                                       #
       DNSMASQ_OPTS: "${DNSMASQ_OPTS}"                               #
+      SHUTDOWN: "Y"                                                 #
+      TIMEOUT: "90"                                                 #
       ARGUMENTS: "${ARGUMENTS}"                                     #
     networks:                                                       # reliable DNS suffix propogation
       - vpronet                                                     #
@@ -50,7 +55,7 @@ services:                                                           #
       - ./oem:/oem                                                  # installer launch repo (install.bat)
       - ./shared:/shared                                            #   - calls install.ps1 in data share
       - ./storage:/storage                                          # primary storage - vHDD location
-      - ./iso/core11.iso:/custom.iso                                # we must have and use a local ISO (install.sh)
+      - ./iso/core11.iso:/custom.iso                                # Win 11 w/ reduced storage req
       - /lib/modules:/lib/modules                                   # ^
       - /dev:/dev:rw                                                # |
       - /sys/bus/pci/devices:/sys/bus/pci/devices:rw                # |
