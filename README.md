@@ -30,7 +30,7 @@ https://docs.docker.com/engine/
 NOTE:  Before you can install the official Docker Engine packages, you need to uninstall any conflicting packages.  The installDocker.sh script mentioned above does NOT remove anything.
 
 ### Step 1a: Create the local directory...
-This is not an absolute requirement to support the VFS use case however, this is absolute for other use cases.  It should be considered a "best practice" to utilize the default directory shown below.
+_NOTE: This is not an absolute requirement to support the VFS use case however, this is absolute for other use cases.  It should be considered a "best practice" to utilize the default directory shown below._
 
 ```bash
 mkdir /opt/vproutil
