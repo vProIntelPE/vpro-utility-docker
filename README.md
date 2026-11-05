@@ -20,15 +20,19 @@ https://github.com/device-management-toolkit/rpc-go
 NOTE: The process of generating this container will download, install and/or use applications/services from multiple sources.  By using this container, you agree to all licenses, agreements, etc., without limitation, for any of the associated items.
 
 ## GETTING STARTED
-This project represents a convergence of numerous efforts by myself and many others, aligned to a primary objective: simplify Intel(R) vPro, primarily Intel(R) AMT, usage/use cases on Linux OS-based devices.  Only one configuration decision must be finalized prior to initial use.  However, it is mutable.
+This project represents a convergence of numerous efforts by myself and many others, aligned to a primary objective: simplify Intel(R) vPro, primarily Intel(R) AMT, usage/use cases on Linux OS-based devices.  Only one configuration decision must be finalized prior to initial use.
 
-There are two primary configuration options:
-  - Intel(R) EMA
-  - Other (Intel(R) VFS, Device Management ToolKit, standalone)
+However, the choice is NOT immutable!
 
-However, this exists only because Intel(R) EMA support requires deeper integration and must have certain OS parameters defined/packages installed that would otherwise be unnecessary.  It is feasible to select the "EMA" option for the initial configuration in an effort to simply serve a "complete install" methodology.
+There are two configuration paths:
+  - Default: Intel(R) VFS, Device Management ToolKit, standalone 
+  - EMA: Intel(R) EMA
 
-The utility has been engineered to toggle between the two options easily however, the "EMA" option must be declared at least once to avoid the need to manually intervene.  Selecting this option from the start facilitates the configuration, installation, etc. of the additional components and yet, allows switching to the default option almost immediately.
+The only reason why this choice exists is because Intel(R) EMA support requires deeper integration potentially including OS config changes, package installs, etc. all of which would otherwise be unnecessary.  That said, it is entirely feasible to opt for the "EMA" choice during the initial configuration in an effort to satisfy a "complete install" methodology.
+
+Toggling between the two options is a fundamental capability that will enable future use cases as Intel evolves AMT and the companion software products such as VFS.  In order to easily toggle between the two options, the "EMA" option must be declared at least once to avoid the need to manually perform all of the additional, requisite steps.  Doing this with the inaugural execution facilitates all of the additional steps while still allowing a simple toggle to the default config, almost immediately.
+
+Click on the appropriate link below:
 
 [Jump to Quick Start: Intel(R) VFS (default)](#quick-start-intelr-vfs)
 
