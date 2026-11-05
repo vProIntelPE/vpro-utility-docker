@@ -25,32 +25,31 @@ Create an account at https://vprofleet.intel.com and use this container on your 
 
 Official Docker packages are required and the installDocker.sh script is intended to provide a convenient way to install them.  Minimal testing was done with distro Docker packages but results showed insufficient reliability. 
 
-Development and testing has been performed with the official packages from Docker.  It is HIGHLY recommended to use the official packages.  Minimal testing of the non-official packages produced unpredictable results. Follow the link below for additional information.
-
 https://docs.docker.com/engine/
 
 NOTE:  Before you can install the official Docker Engine packages, you need to uninstall any conflicting packages.  The installDocker.sh script mentioned above does NOT remove anything.
 
 ## Step 1a: Create the local directory...
-This is not an absolute requirement to support a VFS use case however, this is absolute for other use cases.  It should be considered a "best practice" to utilize the directory structure below.
+This is not an absolute requirement to support the VFS use case however, this is absolute for other use cases.  It should be considered a "best practice" to utilize the default directory shown below.
 
 ```bash
 mkdir /opt/vproutil
 ```
 ## Step 2: Clone the repo...
-
+Cloning this GitHub repo into the folder created in step 1a will provide the folder structure and default config files needed to execute the container.
+ 
 ```bash
 cd /opt/vproutil && git clone https://github.com/vProIntelPE/vpro-utility-docker .
 ```
 ## Step 3: Add the PairingToken file...
 
-Log into Intel(R) VFS, navigate to the endpoint groups, select the radio button of the desired endpoint group and download the PairingToken.  Copy the PairingToken file to the /opt/vproutil/shared directory. 
+Log into Intel(R) VFS, navigate to endpoint groups, select the radio button of the desired endpoint group and download the PairingToken with the second "Download" button on the right side of the page.  Copy the downloaded PairingToken file to the /opt/vproutil/shared directory. 
 
 NOTE: pairing tokens are unique to your VFS tenant and endpoint group BUT not to any device.  You can use the same pairing token to provision all of your vPro devices!
 
-##_Manual or Automated
+##Manual or Automated
 
-There are two ways that the install and execution can proceed from here: via script or via manual execution.  Steps with "Option A)" will be the automated process handled by a script and the manual options will carry "Option B)" in the lables.  Please note that with either option, "docker compose" is used for execution. 
+There are two ways that the install and execution can proceed from here: via script or via manual execution.  Steps with "Option A)" will indicate the automated process whereas the manual option steps will carry "Option B)" in the lable.  Please note that with either option, "docker compose" is used to launch the container. 
 
 ## Option A), Step 4:
 Setting environment variables, building and launching the container can be accomplished in a single step with the following command:
@@ -58,7 +57,7 @@ Setting environment variables, building and launching the container can be accom
 ```bash
 cd /opt/vproutil && ./install.sh
 ```
-The script will attempt to harvest the hostname and DNS suffix (required for ACM activation) but if it is unable to do so, adjusting to the manual path may be necessary.
+The script will attempt to harvest the hostname and DNS suffix (required for ACM activation), and populate those values in to the .env file. If it is unable to do so, adjusting to the manual path may be necessary.
 
 The script will create a symbolic link to the composers/default.yaml composition file, build the container and then launch it.  The container restart directive is configured for "unless stopped" by default.
 
@@ -76,11 +75,12 @@ Setting the hostname and DNS search suffix is largely, personal preference and/o
 
 
 ## Option B), Step 5:
-Execute the following command to create the docker image:
+Execute the following command to create the docker image and link the composition file:
 ```bash
 cd /opt/vproutil && ./install.sh build_container
+ln -sf composers/default.yaml docker-compose.yaml
 ```
-NOTE: A pre-built image can be downloaded here:
+NOTE: Alternatively, a pre-built image can be downloaded here:
 https://github.com/vProIntelPE/vpro-utility-docker/raw/57013f5585880d5b6fd3316544b8d2ee80da6dda/vproutil-1.15.1.tar.gz
 
 ```bash
@@ -88,6 +88,7 @@ cd /opt/vproutil
 wget -O ./vproutil-1.15.1.tar.gz \
   https://github.com/vProIntelPE/vpro-utility-docker/raw/57013f5585880d5b6fd3316544b8d2ee80da6dda/vproutil-1.15.1.tar.gz
 docker load -i vproutil-1.15.1.tar.gz
+ln -sf composers/default.yaml docker-compose.yaml
 ```
 
 ## Option B), Step 6:
