@@ -14,7 +14,7 @@ https://github.com/device-management-toolkit/rpc-go
 
 NOTE: The process of generating this container will download, install and/or use applications/services from multiple sources.  By using this container, you agree to all licenses, agreements, etc., without limitation, for any of the associated items.
 
-## QUICK START: Intel(R) VFS
+##_QUICK START: Intel(R) VFS
 
 The Intel(R) vPro Fleet Services agent is used to provision Intel(R) AMT (Active Management Technologies, part of Intel(R) vPro) for use with the vPro Fleet Services cloud service.
 
@@ -23,7 +23,7 @@ Create an account at https://vprofleet.intel.com and use this container on your 
 
 ## Step 1: Docker install...
 
-Official Docker packages are required and the installDocker.sh script is intended to provide a convenient way to install them.  Minimal testing was done with distro Docker packages but results showed insufficient reliability. 
+Official Docker packages are required and the installDocker.sh script is intended to provide a convenient way to install them.  Minimal testing was done with distro Docker packages but results showed insufficient reliability.
 
 https://docs.docker.com/engine/
 
@@ -37,19 +37,19 @@ mkdir /opt/vproutil
 ```
 ## Step 2: Clone the repo...
 Cloning this GitHub repo into the folder created in step 1a will provide the folder structure and default config files needed to execute the container.
- 
+
 ```bash
 cd /opt/vproutil && git clone https://github.com/vProIntelPE/vpro-utility-docker .
 ```
 ## Step 3: Add the PairingToken file...
 
-Log into Intel(R) VFS, navigate to endpoint groups, select the radio button of the desired endpoint group and download the PairingToken with the second "Download" button on the right side of the page.  Copy the downloaded PairingToken file to the /opt/vproutil/shared directory. 
+Log into Intel(R) VFS, navigate to endpoint groups, select the radio button of the desired endpoint group and download the PairingToken with the second "Download" button on the right side of the page.  Copy the downloaded PairingToken file to the /opt/vproutil/shared directory.
 
 NOTE: pairing tokens are unique to your VFS tenant and endpoint group BUT not to any device.  You can use the same pairing token to provision all of your vPro devices!
 
 ##Manual or Automated
 
-There are two ways that the install and execution can proceed from here: via script or via manual execution.  Steps with "Option A)" will indicate the automated process whereas the manual option steps will carry "Option B)" in the lable.  Please note that with either option, "docker compose" is used to launch the container. 
+There are two ways that the install and execution can proceed from here: via script or via manual execution.  Steps with "Option A)" will indicate the automated process whereas the manual option steps will carry "Option B)" in the lable.  Please note that with either option, "docker compose" is used to launch the container.
 
 ## Option A), Step 4:
 Setting environment variables, building and launching the container can be accomplished in a single step with the following command:
@@ -103,3 +103,4 @@ NOTE: It is recommended that the container run in "attached" (interactive) mode 
 Done!
 
 _NOTE: This is a privately developed asset and there is no assumption of liability, implied or explicit, with the use of this as a whole or with the use of any of the components.  Neither author, nor any 3rd party assumes any liability for it's use, distribution, etc._
+
