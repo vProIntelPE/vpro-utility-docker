@@ -25,8 +25,9 @@ However, this exists only because Intel(R) EMA support requires deeper integrati
 
 The utility has been engineered to toggle between the two options easily however, the "EMA" option must be declared at least once to avoid the need to manually intervene.  Selecting this option from the start facilitates the configuration, installation, etc. of the additional components and yet, allows switching to the default option almost immediately.
 
-[Jump to Quick Start: Intel(R) VFS (default)](##quick-start:-intel(r)-vfs)
-[Jump to Quick Start: Intel(R) VFS (default)](##quick-start:-intel(r)-ema)
+[Jump to Quick Start: Intel(R) VFS (default)](##quick-start-intel(r)-vfs)
+
+[Jump to Quick Start: Intel(R) EMA](##quick-start-intel(r)-ema)
 
 ## QUICK START: Intel(R) VFS
 
