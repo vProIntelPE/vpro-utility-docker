@@ -1,7 +1,7 @@
 # Intel(R) vPro All-Purpose Utility Container for Linux
 A comprehensive Intel(R) vPro utility for Linux OS that can be used for activation, configuration, etc. as a standalone utility and/or activation against current infrastructure solutions:
- - Intel(R) vPro Fleet Services
- - Intel(R) Endpoint Management Assistant
+ - Intel(R) vPro Fleet Services (VFS)
+ - Intel(R) Endpoint Management Assistant (EMA)
  - Device Management ToolKit
 
 CREDIT: Intel(R) EMA support capabilities fork from the phenomenal work done in the dockur/windows project:
@@ -14,7 +14,7 @@ https://github.com/device-management-toolkit/rpc-go
 
 NOTE: The process of generating this container will download, install and/or use applications/services from multiple sources.  By using this container, you agree to all licenses, agreements, etc., without limitation, for any of the associated items.
 
-## QUICK START: Intel(R) vPro Fleet Service (VFS)
+## QUICK START: Intel(R) VFS
 
 The Intel(R) vPro Fleet Services agent is used to provision Intel(R) AMT (Active Management Technologies, part of Intel(R) vPro) for use with the vPro Fleet Services cloud service.
 
@@ -36,7 +36,7 @@ _NOTE: This is not an absolute requirement to support the VFS use case however, 
 mkdir /opt/vproutil
 ```
 ### Step 2: Clone the repo...
-Cloning this GitHub repo into the folder created in step 1a will provide the folder structure and default config files needed to execute the container.
+Cloning this GitHub repo into the folder created in step 1 will provide the folder structure and default config files needed to execute the container.
 
 ```bash
 cd /opt/vproutil && git clone https://github.com/vProIntelPE/vpro-utility-docker .
@@ -47,24 +47,24 @@ Log into Intel(R) VFS, navigate to endpoint groups, select the radio button of t
 
 NOTE: The PairingToken file will be renamed to .UsedToken after the first activation attempt.  If activation fails, you must rollback the name change, returning it to the original value of PairingToken -OR- insert a replacement PairingToken file.
 
-_NOTE: pairing tokens are unique to your VFS tenant and endpoint group BUT not to any device.  You can use the same pairing token to provision all of your vPro devices!_
+_NOTE: PairingToken files are unique to VFS tenants and endpoint groups BUT not to a single device.  The same PairingToken file may be used on ALL vPro devices that you wish to activate against and become members of the associated endpoint group!_
 
 ## Manual or Automated
 
-There are two ways that the install and execution can proceed from here: via script or via manual execution.  Steps with "Option A)" will indicate the automated process whereas the manual option steps will carry "Option B)" in the lable.  Please note that with either option, "docker compose" is used to launch the container.
+There are two ways that the install and execution can proceed from this point: via script or via manual execution.  Steps with "Option A)" will indicate the automated process whereas the manual option steps will carry "Option B)" in the label.  Please note that with either option, "docker compose" is used to launch the container.
 
 ### Option A), Step 4:
-Setting environment variables, building and launching the container can be accomplished in a single step with the following command:
+Setting environment variables, building and launching the container is done in a single step with the following command:
 
 ```bash
 cd /opt/vproutil && ./install.sh
 ```
-The script will attempt to harvest the hostname and DNS suffix (required for ACM activation), and populate those values in to the .env file. If it is unable to do so, adjusting to the manual path may be necessary.
+The script will attempt to harvest the hostname and DNS suffix (required for ACM activation), and populate those values into the .env file. If it is unable to do so, adjusting to the manual path may be necessary.
 
-The script will create a symbolic link to the composers/default.yaml composition file, build the container and then launch it.  The container restart directive is configured for "unless stopped" by default.
+The script will create a symbolic link from composers/default.yaml composition file to docker-compose.yaml, build the container and launch it, interactively.  The container restart directive is configured for "unless-stopped" by default.
 
 ### Option A), Step 5:
-Done!
+# Done!
 
 ### Option B), Step 4:
 Rename the 'rename-to-.env' file to '.env' and edit it to reflect the FQDN and primary DNS suffix that you wish the device to use (per device)
@@ -102,7 +102,7 @@ cd /opt/vproutil && docker compose up
 NOTE: It is recommended that the container run in "attached" (interactive) mode the first time (while in PoC).  Appending "-d" to the command above will silence output and run the container in "detached" mode.
 
 ### Option B), Step 7:
-Done!
+# Done!
 
 _NOTE: This is a privately developed asset and there is no assumption of liability, implied or explicit, with the use of this as a whole or with the use of any of the components.  Neither author, nor any 3rd party assumes any liability for it's use, distribution, etc._
 
