@@ -20,7 +20,7 @@ https://github.com/device-management-toolkit/rpc-go
 NOTE: The process of generating this container will download, install and/or use applications/services from multiple sources.  By using this container, you agree to all licenses, agreements, etc., without limitation, for any of the associated items.
 
 ## GETTING STARTED
-This project represents a convergence of numerous efforts by myself and many others, aligned to a primary objective: simplify Intel(R) vPro, primarily Intel(R) AMT, usage/use cases on Linux OS-based devices.  Only one configuration decision must be finalized prior to initial use.
+This project represents a convergence of numerous efforts by myself and many others, aligned to a primary objective: simplify maintenance/management/use of Intel(R) AMT (Active Management Technologies, part of Intel(R) vPro) on devices running Linux.  To that end, only one configuration decision must be finalized prior to initial use.
 
 However, the choice is NOT immutable!
 
@@ -28,9 +28,9 @@ There are two configuration paths:
   - Default: Intel(R) VFS, Device Management ToolKit, standalone 
   - EMA: Intel(R) EMA
 
-The only reason why this choice exists is because Intel(R) EMA support requires deeper integration potentially including OS config changes, package installs, etc. all of which would otherwise be unnecessary.  That said, it is entirely feasible to opt for the "EMA" choice during the initial configuration in an effort to satisfy a "complete install" methodology.
+The only reason why this choice exists is because Intel(R) EMA support requires deeper integration including things like OS config changes, package installs, etc. and they are otherwise, unnecessary.  That said, it is entirely feasible to opt for the "EMA" choice during the initial configuration in an effort to satisfy a "complete install" methodology.
 
-Toggling between the two options is a fundamental capability that will enable future use cases as Intel evolves AMT and the companion software products such as VFS.  In order to easily toggle between the two options, the "EMA" option must be declared at least once to avoid the need to manually perform all of the additional, requisite steps.  Doing this with the inaugural execution facilitates all of the additional steps while still allowing a simple toggle to the default config, almost immediately.
+Toggling between the two options is a fundamental capability that will enable future use cases as Intel evolves AMT and the companion software products such as VFS.  In order to easily toggle between the two options, the "EMA" option must be declared at least once to avoid the need to manually perform all of the additional steps.  Doing this with the inaugural execution facilitates all of the additional steps while still allowing a simple toggle to the default config, almost immediately.
 
 Click on the appropriate link below:
 
@@ -40,7 +40,7 @@ Click on the appropriate link below:
 
 ## QUICK START: Intel(R) VFS
 
-The Intel(R) vPro Fleet Services agent is used to provision Intel(R) AMT (Active Management Technologies, part of Intel(R) vPro) for use with the vPro Fleet Services cloud service.
+The Intel(R) vPro Fleet Services agent is used to provision Intel(R) AMT for use with the vPro Fleet Services cloud service.
 
 Create an account at https://vprofleet.intel.com and use this container on your vPro Linux devices today!
 
