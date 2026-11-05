@@ -29,29 +29,29 @@ https://docs.docker.com/engine/
 
 NOTE:  Before you can install the official Docker Engine packages, you need to uninstall any conflicting packages.  The installDocker.sh script mentioned above does NOT remove anything.
 
-## Step 1a: Create the local directory...
+### Step 1a: Create the local directory...
 This is not an absolute requirement to support the VFS use case however, this is absolute for other use cases.  It should be considered a "best practice" to utilize the default directory shown below.
 
 ```bash
 mkdir /opt/vproutil
 ```
-## Step 2: Clone the repo...
+### Step 2: Clone the repo...
 Cloning this GitHub repo into the folder created in step 1a will provide the folder structure and default config files needed to execute the container.
 
 ```bash
 cd /opt/vproutil && git clone https://github.com/vProIntelPE/vpro-utility-docker .
 ```
-## Step 3: Add the PairingToken file...
+### Step 3: Add the PairingToken file...
 
 Log into Intel(R) VFS, navigate to endpoint groups, select the radio button of the desired endpoint group and download the PairingToken with the second "Download" button on the right side of the page.  Copy the downloaded PairingToken file to the /opt/vproutil/shared directory.
 
 NOTE: pairing tokens are unique to your VFS tenant and endpoint group BUT not to any device.  You can use the same pairing token to provision all of your vPro devices!
 
-##Manual or Automated
+## Manual or Automated
 
 There are two ways that the install and execution can proceed from here: via script or via manual execution.  Steps with "Option A)" will indicate the automated process whereas the manual option steps will carry "Option B)" in the lable.  Please note that with either option, "docker compose" is used to launch the container.
 
-## Option A), Step 4:
+### Option A), Step 4:
 Setting environment variables, building and launching the container can be accomplished in a single step with the following command:
 
 ```bash
@@ -61,10 +61,10 @@ The script will attempt to harvest the hostname and DNS suffix (required for ACM
 
 The script will create a symbolic link to the composers/default.yaml composition file, build the container and then launch it.  The container restart directive is configured for "unless stopped" by default.
 
-## Option A), Step 5:
+### Option A), Step 5:
 Done!
 
-## Option B), Step 4:
+### Option B), Step 4:
 Rename the 'rename-to-.env' file to '.env' and edit it to reflect the FQDN and primary DNS suffix that you wish the device to use (per device)
 
 ```bash
@@ -74,7 +74,7 @@ vi .env
 Setting the hostname and DNS search suffix is largely, personal preference and/or defined by deployment requirements.  The full hostname (FQDN), is often a requirement for AMT activation as well as normal use and as such, proper declaration/definition should be considered a best practice.
 
 
-## Option B), Step 5:
+### Option B), Step 5:
 Execute the following command to create the docker image and link the composition file:
 ```bash
 cd /opt/vproutil && ./install.sh build_container
@@ -91,7 +91,7 @@ docker load -i vproutil-1.15.1.tar.gz
 ln -sf composers/default.yaml docker-compose.yaml
 ```
 
-## Option B), Step 6:
+### Option B), Step 6:
 Use the following docker compose command to execute the container:
 
 ```bash
@@ -99,7 +99,7 @@ cd /opt/vproutil && docker compose up
 ```
 NOTE: It is recommended that the container run in "attached" (interactive) mode the first time (while in PoC).  Appending "-d" to the command above will silence output and run the container in "detached" mode.
 
-## Option B), Step 7:
+### Option B), Step 7:
 Done!
 
 _NOTE: This is a privately developed asset and there is no assumption of liability, implied or explicit, with the use of this as a whole or with the use of any of the components.  Neither author, nor any 3rd party assumes any liability for it's use, distribution, etc._
