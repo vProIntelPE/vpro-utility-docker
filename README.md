@@ -14,7 +14,7 @@ https://github.com/device-management-toolkit/rpc-go
 
 NOTE: The process of generating this container will download, install and/or use applications/services from multiple sources.  By using this container, you agree to all licenses, agreements, etc., without limitation, for any of the associated items.
 
-_## QUICK START: Intel(R) vPro Fleet Service (VFS)_
+## QUICK START: Intel(R) vPro Fleet Service (VFS)
 
 The Intel(R) vPro Fleet Services agent is used to provision Intel(R) AMT (Active Management Technologies, part of Intel(R) vPro) for use with the vPro Fleet Services cloud service.
 
