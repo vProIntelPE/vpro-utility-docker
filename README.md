@@ -21,7 +21,7 @@ The Intel(R) vPro Fleet Services agent is used to provision Intel(R) AMT (Active
 Create an account at https://vprofleet.intel.com and use this container on your vPro Linux devices today!
 
 
-## Step 1: Docker install...
+### Step 1: Docker install...
 
 Official Docker packages are required and the installDocker.sh script is intended to provide a convenient way to install them.  Minimal testing was done with distro Docker packages but results showed insufficient reliability.
 
