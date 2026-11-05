@@ -21,7 +21,7 @@ The Intel(R) vPro Fleet Services agent is used to provision Intel(R) AMT (Active
 Create an account at https://vprofleet.intel.com and use this container on your vPro Linux devices today!
 
 
-### Step 1: Docker install...
+### Pre-reqs: Docker install...
 
 Official Docker packages are required and the installDocker.sh script is intended to provide a convenient way to install them.  Minimal testing was done with distro Docker packages but results showed insufficient reliability.
 
@@ -29,7 +29,7 @@ https://docs.docker.com/engine/
 
 NOTE:  Before you can install the official Docker Engine packages, you need to uninstall any conflicting packages.  The installDocker.sh script mentioned above does NOT remove anything.
 
-### Step 1a: Create the local directory...
+### Step 1: Create the local directory...
 _NOTE: This is not an absolute requirement to support the VFS use case however, this is absolute for other use cases.  It should be considered a "best practice" to utilize the default directory shown below._
 
 ```bash
@@ -45,7 +45,9 @@ cd /opt/vproutil && git clone https://github.com/vProIntelPE/vpro-utility-docker
 
 Log into Intel(R) VFS, navigate to endpoint groups, select the radio button of the desired endpoint group and download the PairingToken with the second "Download" button on the right side of the page.  Copy the downloaded PairingToken file to the /opt/vproutil/shared directory.
 
-NOTE: pairing tokens are unique to your VFS tenant and endpoint group BUT not to any device.  You can use the same pairing token to provision all of your vPro devices!
+NOTE: The PairingToken file will be renamed to .UsedToken after the first activation attempt.  If activation fails, you must rollback the name change, returning it to the original value of PairingToken -OR- insert a replacement PairingToken file.
+
+_NOTE: pairing tokens are unique to your VFS tenant and endpoint group BUT not to any device.  You can use the same pairing token to provision all of your vPro devices!_
 
 ## Manual or Automated
 
