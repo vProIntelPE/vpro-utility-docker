@@ -4,10 +4,14 @@ A comprehensive Intel(R) vPro utility for Linux OS that can be used for activati
  - Intel(R) Endpoint Management Assistant (EMA)
  - Device Management ToolKit
 
-CREDIT: Intel(R) EMA support capabilities fork from the phenomenal work done in the dockur/windows project:
+CREDITS:
+_Intel(R) EMA support capabilities come from a fork of the phenomenal work done in the dockur/windows project:_
+
 https://github.com/dockur/windows
 
-CREDIT: The following packages/projects provide the foundational elements crucial to all use cases:
+
+_The following packages/projects provide the foundational elements crucial to all use cases:_
+
 https://github.com/rgl/lms-binaries
 
 https://github.com/device-management-toolkit/rpc-go
