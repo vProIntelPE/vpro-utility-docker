@@ -14,6 +14,19 @@ https://github.com/device-management-toolkit/rpc-go
 
 NOTE: The process of generating this container will download, install and/or use applications/services from multiple sources.  By using this container, you agree to all licenses, agreements, etc., without limitation, for any of the associated items.
 
+## GETTING STARTED
+This project represents a convergence of numerous efforts by myself and many others, aligned to a primary objective: simplify Intel(R) vPro, primarily Intel(R) AMT, usage/use cases on Linux OS-based devices.  Only one configuration decision must be finalized prior to initial use.  However, it is mutable.
+
+There are two primary configuration options:
+  - Intel(R) EMA
+  - Other (Intel(R) VFS, Device Management ToolKit, standalone)
+
+However, this exists only because Intel(R) EMA support requires deeper integration and must have certain OS parameters defined/packages installed that would otherwise be unnecessary.  It is feasible to select the "EMA" option for the initial configuration in an effort to simply serve a "complete install" methodology.
+
+The utility has been engineered to toggle between the two options easily however, the "EMA" option must be declared at least once to avoid the need to manually intervene.  Selecting this option from the start facilitates the configuration, installation, etc. of the additional components and yet, allows switching to the default option almost immediately.
+
+[Jump to Quick Start: Intel(R) VFS (default)](#quick-start:-intel(r)-vfs)
+
 ## QUICK START: Intel(R) VFS
 
 The Intel(R) vPro Fleet Services agent is used to provision Intel(R) AMT (Active Management Technologies, part of Intel(R) vPro) for use with the vPro Fleet Services cloud service.
