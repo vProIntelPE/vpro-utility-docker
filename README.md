@@ -5,6 +5,7 @@ A comprehensive Intel(R) vPro utility for Linux OS that can be used for activati
  - Device Management ToolKit
 
 CREDITS:
+
 _Intel(R) EMA support capabilities come from a fork of the phenomenal work done in the dockur/windows project:_
 
 https://github.com/dockur/windows
