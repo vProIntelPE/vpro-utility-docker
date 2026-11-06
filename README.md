@@ -23,7 +23,7 @@ NOTE: The process of generating this container will download, install and/or use
 
 I'll assume that others share my affinity towards "Can I just get this going and then come back to read your dissertation later???"  :) The answer is...yes, I have a "Just run this" flow for you.
 
-Here are the "Just run this..." links:
+You can [jump](#pre-requisite-docker-install) to the "not-so-quick, quick start" OR here are the "Just run this..." links:
 
 ### Intel(R) vPro Fleet Services (default config):
 
@@ -33,7 +33,7 @@ Step 1: [Just run this: clone the repo](#just-run-this-clone-pre-requisite)
 
 Step 2: [Just run this: install Docker](#just-run-this-docker-pre-requisite)
 
-Step 3: [Just run this: Automated default](#just-run-this-default-automated)
+Step 3: [Just run this: Default (auto)](#just-run-this-default-automated)
 
 ### Manual:
 
@@ -41,7 +41,7 @@ Step 1: [Just run this: clone the repo](#just-run-this-clone-pre-requisite)
 
 Step 2: [Just run this: install Docker](#just-run-this-docker-pre-requisite)
 
-Step 3: [Just run this: Manual default](#just-run-this-default-manual)
+Step 3: [Just run this: Default (manual)](#just-run-this-default-manual)
 
 
 ### Intel(R) Endpoint Management Assistant (EMA config):
