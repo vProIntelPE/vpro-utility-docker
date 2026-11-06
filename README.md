@@ -19,6 +19,14 @@ https://github.com/device-management-toolkit/rpc-go
 
 NOTE: The process of generating this container will download, install and/or use applications/services from multiple sources.  By using this container, you agree to all licenses, agreements, etc., without limitation, for any of the associated items.
 
+### Pre-requisite: Docker install...
+
+Official Docker packages are required and the installDocker.sh script is intended to provide a convenient way to install them.  Minimal testing was done with distro Docker packages but results showed insufficient reliability.
+
+https://docs.docker.com/engine/
+
+NOTE:  Before you can install the official Docker Engine packages, you need to uninstall any conflicting packages.  The installDocker.sh script mentioned above does NOT remove anything.
+
 ## GETTING STARTED
 This project represents a convergence of numerous efforts by myself and many others, aligned to a primary objective: simplify maintenance/management/use of Intel(R) AMT (Active Management Technologies, part of Intel(R) vPro) on devices running Linux.  To that end, only one configuration decision must be finalized prior to initial use.
 
@@ -43,15 +51,6 @@ Click on the appropriate link below:
 The Intel(R) vPro Fleet Services agent is used to provision Intel(R) AMT for use with the vPro Fleet Services cloud service.
 
 Create an account at https://vprofleet.intel.com and use this container on your vPro Linux devices today!
-
-
-### Pre-reqs: Docker install...
-
-Official Docker packages are required and the installDocker.sh script is intended to provide a convenient way to install them.  Minimal testing was done with distro Docker packages but results showed insufficient reliability.
-
-https://docs.docker.com/engine/
-
-NOTE:  Before you can install the official Docker Engine packages, you need to uninstall any conflicting packages.  The installDocker.sh script mentioned above does NOT remove anything.
 
 ### Step 1: Create the local directory...
 _NOTE: This is not an absolute requirement to support the VFS use case however, this is absolute for other use cases.  It should be considered a "best practice" to utilize the default directory shown below._
