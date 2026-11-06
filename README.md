@@ -21,7 +21,7 @@ NOTE: The process of generating this container will download, install and/or use
 
 ## Not just "quick" but "lightspeed" start..
 
-I'll assume that others share my affinity towards "Can I just get this going and then come back to read your dissertation later???"  :) The answer is...yes, I have a "Just run this" flow for you.
+I'll assume that others share my affinity for "Can I just get this going and then come back to read your dissertation later???"  :) The answer is...yes, I have a "Just run this" flow for you.
 
 You can [jump](#pre-requisite-docker-install) to the "not-so-quick, quick start" OR here are the "Just run this..." links:
 
@@ -69,15 +69,17 @@ _NOTE:  Before you can install the official Docker Engine packages, you need to 
 ## GETTING STARTED
 This project represents a convergence of numerous efforts by myself and many others, aligned to a primary objective: simplify maintenance/management/use of Intel(R) AMT (Active Management Technologies, part of Intel(R) vPro) on devices running Linux.  To that end, only one configuration decision must be finalized prior to initial use.
 
-However, the choice is NOT immutable!
+However, the choice is NOT irreversible!
 
 There are two configuration paths:
   - Default: Intel(R) VFS, Device Management ToolKit, standalone 
   - EMA: Intel(R) EMA
 
-The only reason why this choice exists is because Intel(R) EMA support requires deeper integration including things like OS config changes, package installs, etc. and they are otherwise, unnecessary.  That said, it is entirely feasible to opt for the "EMA" choice during the initial configuration in an effort to satisfy a "complete install" methodology.
+The only reason why this choice exists is because Intel(R) EMA support requires things like PCIe pass-through that would otherwise be extraneous.  That said, opting for the "EMA" config for the inaugural execution prepares the endpoint for that type of execution should the need ever arise and, it can be toggled to the default config immediately.
 
-Toggling between the two options is a fundamental capability that will enable future use cases as Intel evolves AMT and the companion software products such as VFS.  In order to easily toggle between the two options, the "EMA" option must be declared at least once to avoid the need to manually perform all of the additional steps.  Doing this with the inaugural execution facilitates all of the additional steps while still allowing a simple toggle to the default config, almost immediately.
+Toggling between the two options as a fundamental capability has been a required objective of this project from its inception.  The ability to flip from one config to another is necessary for activities such as migration.  Here is a hypothetical example of how that might work:
+
+EMA config ---> Managed by Intel(R) EMA ---> Intel(R) VFS is new requirement ---> Intel(R) VFS adopted/configured ---> (hypothetical from here on) PairingToken deployed ---> Toggle to Default config ---> Endpoint migrates  
 
 Click on the appropriate link below:
 
