@@ -21,7 +21,9 @@ NOTE: The process of generating this container will download, install and/or use
 
 ## Not just "quick" but "lightspeed" start..
 
-I'll assume that others share my affinity towards "Can I just get this going and then come back to read your dissertation later???"  :) The answer is...yes, I have a "Just run this" flow for you.  Here are the "Just run this..." links:
+I'll assume that others share my affinity towards "Can I just get this going and then come back to read your dissertation later???"  :) The answer is...yes, I have a "Just run this" flow for you.
+
+Here are the "Just run this..." links:
 
 ### Intel(R) vPro Fleet Services (default config):
 
