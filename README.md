@@ -179,12 +179,15 @@ sudo su
 mkdir /opt/vproutil
 cd /opt/vproutil
 git clone https://github.com/vProIntelPE/vpro-utility-docker .
-# PairingToken cp/mv command should be added here if developing a deployment script/flow
+# PairingToken/EmaAgent cp/mv command should be added here if developing a deployment script/flow
 # Example:
-#  cp /tmp/PairingToken /opt/vproutil/shared/
+#  cp /tmp/PairingToken /opt/vproutil/shared/ # VFS
+#  cp /tmp/EmaAgent.* /opt/vproutil/shared/   # EMA
 ```
 
-_NOTE: You must copy the PairingToken file to the correct directory at this point in the flow if you intend to provision the endpoint against Intel(R) VFS_ 
+_NOTE: You must copy the PairingToken file to the correct directory at this point in the flow if you intend to provision the endpoint against Intel(R) VFS_
+
+_NOTE: You must copy the EmaAgent.exe and EmaAgent.msh files to the correct directory at this point in the flow if you intend to provision the endpoint against Intel(R) EMA_
 
 ## Just run this: Docker pre-requisite...
 
