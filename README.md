@@ -19,7 +19,12 @@ https://github.com/device-management-toolkit/rpc-go
 
 NOTE: The process of generating this container will download, install and/or use applications/services from multiple sources.  By using this container, you agree to all licenses, agreements, etc., without limitation, for any of the associated items.
 
-### Pre-requisite: Docker install...
+## Not just "quick" but "lightspeed" start..
+
+I'll assume that others share my affinity towards "Can I just get this going and then come back to read your ramblings later???"  The answer is yes:
+
+
+## Pre-requisite: Docker install...
 
 Official Docker packages are required and the installDocker.sh script is intended to provide a convenient way to install them.  Minimal testing was done with distro Docker packages but results showed insufficient reliability.
 
@@ -130,6 +135,58 @@ NOTE: It is recommended that the container run in "attached" (interactive) mode 
 
 ## QUICK START: Intel(R) EMA
 Coming soon!
+
+## Just run this: Clone pre-requisite...
+
+```bash
+sudo su
+mkdir /opt/vproutil
+cd /opt/vproutil
+git clone https://github.com/vProIntelPE/vpro-utility-docker .
+```
+
+## Just run this: Docker pre-requisite...
+
+```bash
+sudo su
+cd /opt/vproutil
+./installDocker.sh
+```
+
+## Just run this: Default (automated)...
+
+```bash
+sudo su
+cd /opt/vproutil
+./install.sh --default
+```
+
+## Just run this: Default (manual)...
+
+```bash
+sudo su
+cd /opt/vproutil
+mv default-env .env
+vi .env
+docker build -t vproutil:1.15.1 .
+ln -sf composers/default.yaml docker-compose.yaml
+docker compose up
+```
+
+## Just run this: EMA...
+
+```bash
+sudo su
+cd /opt/vproutil
+./install.sh --ema
+```
+
+## Just download this: Pre-built image...
+```bash
+wget -O ./vproutil-1.15.1.tar.gz \
+  https://github.com/vProIntelPE/vpro-utility-docker/raw/57013f5585880d5b6fd3316544b8d2ee80da6dda/vproutil-1.15.1.tar.gz
+docker load -i vproutil-1.15.1.tar.gz
+```
 
 _NOTE: This is a privately developed asset and there is no assumption of liability, implied or explicit, with the use of this as a whole or with the use of any of the components.  Neither author, nor any 3rd party assumes any liability for it's use, distribution, etc._
 
