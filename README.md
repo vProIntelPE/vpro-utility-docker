@@ -25,7 +25,7 @@ Official Docker packages are required and the installDocker.sh script is intende
 
 https://docs.docker.com/engine/
 
-NOTE:  Before you can install the official Docker Engine packages, you need to uninstall any conflicting packages.  The installDocker.sh script mentioned above does NOT remove anything.
+_NOTE:  Before you can install the official Docker Engine packages, you need to uninstall any conflicting packages.  The installDocker.sh script mentioned above does NOT remove anything._
 
 ## GETTING STARTED
 This project represents a convergence of numerous efforts by myself and many others, aligned to a primary objective: simplify maintenance/management/use of Intel(R) AMT (Active Management Technologies, part of Intel(R) vPro) on devices running Linux.  To that end, only one configuration decision must be finalized prior to initial use.
