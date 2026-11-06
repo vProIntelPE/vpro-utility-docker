@@ -21,7 +21,39 @@ NOTE: The process of generating this container will download, install and/or use
 
 ## Not just "quick" but "lightspeed" start..
 
-I'll assume that others share my affinity towards "Can I just get this going and then come back to read your ramblings later???"  The answer is yes:
+I'll assume that others share my affinity towards "Can I just get this going and then come back to read your dissertation later???"  :) The answer is...yes, I have a "Just run this" flow for you.  Here are the "Just run this..." links:
+
+### Intel(R) vPro Fleet Services (default config):
+
+### Automatic:
+
+Step 1: [Just run this: clone the repo](#just-run-this-clone-pre-requisite)
+
+Step 2: [Just run this: install Docker](#just-run-this-docker-pre-requisite)
+
+Step 3: [Just run this: Automated default](#just-run-this-default-automated)
+
+### Manual:
+
+Step 1: [Just run this: clone the repo](#just-run-this-clone-pre-requisite)
+
+Step 2: [Just run this: install Docker](#just-run-this-docker-pre-requisite)
+
+Step 3: [Just run this: Manual default](#just-run-this-default-manual)
+
+
+### Intel(R) Endpoint Management Assistant (EMA config):
+
+Step 1: [Just run this: clone the repo](#just-run-this-clone-pre-requisite)
+
+Step 2: [Just run this: install Docker](#just-run-this-docker-pre-requisite)
+
+Step 3: [Just run this: EMA](#just-run-this-ema)
+
+
+### Optional stuff:
+
+[Just run this: pre-built image](#just-download-this-pre-built-image)
 
 
 ## Pre-requisite: Docker install...
