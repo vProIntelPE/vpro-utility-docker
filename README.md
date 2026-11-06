@@ -170,7 +170,40 @@ NOTE: It is recommended that the container run in "attached" (interactive) mode 
 
 
 ## QUICK START: Intel(R) EMA
-Coming soon!
+
+The Intel(R) Endpoint Management Assistant agent is used to provision Intel(R) AMT for use with your Intel(R) EMA server(s).
+
+_NOTE: The use of "sudo su" is assmumed with each of the steps below but you are welcome to prepend privileged commands with "sudo" in an attempt to achieve the same objective._
+
+### Step 1: Create the local directory...
+_NOTE: The path specified below is a hard requirement for Intel(R) EMA support.  This should change in the future as I update the project but at this time, there are a few remaining absolute path instances in a few of the scripts._
+
+```bash
+mkdir /opt/vproutil
+```
+### Step 2: Clone the repo...
+Cloning this GitHub repo into the folder created in step 1 will provide the folder structure and default config files needed to execute the container.
+
+```bash
+cd /opt/vproutil && git clone https://github.com/vProIntelPE/vpro-utility-docker .
+```
+### Step 3: Add the EmaAgent files...
+
+Log into your Intel(R) EMA web portal, navigate to endpoint groups, select the dropdown of the desired endpoint group and click "Create agent files".  Download both and copy them to the /opt/vproutil/shared directory.
+
+### Step 4:
+Setting environment variables, building and launching the container is done in a single step with the following command:
+
+```bash
+cd /opt/vproutil && ./install.sh --ema
+```
+The script will attempt to harvest the hostname and DNS suffix (required for ACM activation), and populate those values into the .env file. If it is unable to do so, adjusting to the manual path may be necessary.
+
+The script will create a symbolic link from composers/ema.yaml composition file to docker-compose.yaml, build the container, and create a systemd service named "vProHostSvc"as well as start the service (if a reboot is not required).  The reboot is NOT optional if the script flags it as necessary.
+
+### Step 5:
+# Done!
+
 
 # Hyperdrive: "Just run this..."
 
