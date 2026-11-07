@@ -108,6 +108,8 @@ Cloning this GitHub repo into the folder created in step 1 will provide the fold
 
 ```bash
 cd /opt/vproutil && git clone https://github.com/vProIntelPE/vpro-utility-docker .
+# OPTIONAL: use the Docker install script to install the official packages if needed
+# ./installDocker.sh
 ```
 ### Step 3: Add the PairingToken file...
 
@@ -199,6 +201,8 @@ Cloning this GitHub repo into the folder created in step 1 will provide the fold
 
 ```bash
 cd /opt/vproutil && git clone https://github.com/vProIntelPE/vpro-utility-docker .
+# OPTIONAL: use the Docker install script to install the official packages if needed
+# ./installDocker.sh
 ```
 ### Step 3: Add the EmaAgent files...
 
