@@ -19,11 +19,14 @@ https://github.com/device-management-toolkit/rpc-go
 
 NOTE: The process of generating this container will download, install and/or use applications/services from multiple sources.  By using this container, you agree to all licenses, agreements, etc., without limitation, for any of the associated items.
 
-## Not just "quick" but "lightspeed" start..
+# Not just "quick" but "lightspeed" start..
 
-I'll assume that others share my affinity for "Can I just get this going and then come back to read your dissertation later???"  :) The answer is...yes, I have a "Just run this" flow for you.
+I'll assume that others share my affinity for "Can I just get this going and then come back to read your dissertation later???"  :)
 
-You can [jump](#pre-requisite-docker-install) to the "not-so-quick, quick start" OR here are the "Just run this..." links/[section](#hyperdrive-just-run-this):
+The answer is...yes, there is a "[Just run this](#hyperdrive-just-run-this)" flow for you.
+
+The links just below this break things out into a "step-by-step" a bit more but the ["Not-so-quick, quick start"](#pre-requisite-docker-install) provides far more information that answer most of the questions that might arise.
+
 
 ### Intel(R) vPro Fleet Services (default config):
 
@@ -56,6 +59,7 @@ Step 3: [Just run this: EMA](#just-run-this-ema)
 ### Optional stuff:
 
 [Just run this: pre-built image](#just-download-this-pre-built-image)
+
 
 
 ## Pre-requisite: Docker install...
