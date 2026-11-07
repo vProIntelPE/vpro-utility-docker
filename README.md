@@ -244,7 +244,7 @@ cd /opt/vproutil
 git clone https://github.com/vProIntelPE/vpro-utility-docker .
 cp /tmp/EmaAgent.* /opt/vproutil/shared/
 ./installDocker.sh
-./install.sh --default
+./install.sh --ema
 ```
 
 
