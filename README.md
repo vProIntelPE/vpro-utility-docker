@@ -107,7 +107,7 @@ mkdir /opt/vproutil
 Cloning this GitHub repo into the folder created in step 1 will provide the folder structure and default config files needed to execute the container.
 
 ```bash
-cd /opt/vproutil && git clone https://github.com/vProIntelPE/vpro-utility-docker .
+cd /opt/vproutil && git clone --filter=blob:none https://github.com/vProIntelPE/vpro-utility-docker .
 # OPTIONAL: use the Docker install script to install the official packages if needed
 # ./installDocker.sh
 ```
@@ -200,7 +200,7 @@ mkdir /opt/vproutil
 Cloning this GitHub repo into the folder created in step 1 will provide the folder structure and default config files needed to execute the container.
 
 ```bash
-cd /opt/vproutil && git clone https://github.com/vProIntelPE/vpro-utility-docker .
+cd /opt/vproutil && git clone --filter=blob:none https://github.com/vProIntelPE/vpro-utility-docker .
 # OPTIONAL: use the Docker install script to install the official packages if needed
 # ./installDocker.sh
 ```
@@ -230,7 +230,7 @@ The script will create a symbolic link from composers/ema.yaml composition file 
 sudo su
 mkdir /opt/vproutil
 cd /opt/vproutil
-git clone https://github.com/vProIntelPE/vpro-utility-docker .
+git clone --filter=blob:none https://github.com/vProIntelPE/vpro-utility-docker .
 cp /tmp/PairingToken /opt/vproutil/shared/
 ./installDocker.sh
 ./install.sh --default
@@ -241,7 +241,7 @@ cp /tmp/PairingToken /opt/vproutil/shared/
 sudo su
 mkdir /opt/vproutil
 cd /opt/vproutil
-git clone https://github.com/vProIntelPE/vpro-utility-docker .
+git clone --filter=blob:none https://github.com/vProIntelPE/vpro-utility-docker .
 cp /tmp/EmaAgent.* /opt/vproutil/shared/
 ./installDocker.sh
 ./install.sh --ema
@@ -256,7 +256,7 @@ cp /tmp/EmaAgent.* /opt/vproutil/shared/
 sudo su
 mkdir /opt/vproutil
 cd /opt/vproutil
-git clone https://github.com/vProIntelPE/vpro-utility-docker .
+git clone --filter=blob:none https://github.com/vProIntelPE/vpro-utility-docker .
 # PairingToken/EmaAgent cp/mv command should be added here if developing a deployment script/flow
 # Example:
 #  cp /tmp/PairingToken /opt/vproutil/shared/ # VFS
