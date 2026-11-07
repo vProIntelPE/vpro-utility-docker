@@ -128,7 +128,8 @@ The script will attempt to harvest the hostname and DNS suffix (required for ACM
 The script will create a symbolic link from composers/default.yaml composition file to docker-compose.yaml, build the container and launch it, interactively.  The container restart directive is configured for "unless-stopped" by default.
 
 ### Option A), Step 5:
-# Done!
+## Done!
+
 
 ### Option B), Step 4:
 Rename the 'rename-to-.env' file to '.env' and edit it to reflect the FQDN and primary DNS suffix that you wish the device to use (per device)
@@ -166,12 +167,20 @@ cd /opt/vproutil && docker compose up
 NOTE: It is recommended that the container run in "attached" (interactive) mode the first time (while in PoC).  Appending "-d" to the command above will silence output and run the container in "detached" mode.
 
 ### Option B), Step 7:
-# Done!
+## Done!
+
 
 
 ## QUICK START: Intel(R) EMA
 
-The Intel(R) Endpoint Management Assistant agent is used to provision Intel(R) AMT for use with your Intel(R) EMA server(s).
+There are multiple ways to enable functionality of Linux-based endpoints in Intel(R) Endpoint Management Assistant but regular maintenance can be a bit cumbersome with any of those options.  Simplification as well as reliability are two of the driving factors behind this project and the framework/architecture of this approach seems to meet those objectives.  The Intel(R) EMA option of this utility will create a container that hosts a QEMU VM with a minimized Windows 11 OS.  The Intel(R) Management Engine (ME) hardware is passed to the VM OS which enables the EMA agent access to provision/un-provision/maintain Intel(R) AMT directly from your Intel(R) EMA server(s).
+
+### Things to consider before you proceed:
+- _Windows licensing: there is NO Windows license provided with this utility and you MUST maintain licensing compliance per your licensing agreement, whatever that may be_
+- _Resource consumption: Running a VM has inherent, host resource consumption considerations that are difficult, if not impossible to predict_
+- _Invasive: PCIe passthrough requires changes to the host OS that are usually not experienced with the use of containers_
+
+In general terms, the 2nd and 3rd point above will often require testing to quantify impact/overhead in order to make a suitability determination.  If you are purchasing devices with a Windows license, it is quite possible that the 1st point is moot but that should be verified against any/all agreements you may be subject to. 
 
 _NOTE: The use of "sudo su" is assmumed with each of the steps below but you are welcome to prepend privileged commands with "sudo" in an attempt to achieve the same objective._
 
@@ -202,10 +211,36 @@ The script will attempt to harvest the hostname and DNS suffix (required for ACM
 The script will create a symbolic link from composers/ema.yaml composition file to docker-compose.yaml, build the container, and create a systemd service named "vProHostSvc"as well as start the service (if a reboot is not required).  The reboot is NOT optional if the script flags it as necessary.
 
 ### Step 5:
-# Done!
+## Done!
+
 
 
 # Hyperdrive: "Just run this..."
+
+## Just run this AIOS: Default (vPro Fleet, ToolKit, standalone, etc.)
+```bash
+sudo su
+mkdir /opt/vproutil
+cd /opt/vproutil
+git clone https://github.com/vProIntelPE/vpro-utility-docker .
+cp /tmp/PairingToken /opt/vproutil/shared/
+./installDocker.sh
+./install.sh --default
+```
+
+## Just run this AIOS: EMA
+```bash
+sudo su
+mkdir /opt/vproutil
+cd /opt/vproutil
+git clone https://github.com/vProIntelPE/vpro-utility-docker .
+cp /tmp/EmaAgent.* /opt/vproutil/shared/
+./installDocker.sh
+./install.sh --default
+```
+
+
+# Hyperdrive: "Just run this..." (individual steps)
 
 ## Just run this: Clone pre-requisite...
 
@@ -227,24 +262,18 @@ _NOTE: You must copy the EmaAgent.exe and EmaAgent.msh files to the correct dire
 ## Just run this: Docker pre-requisite...
 
 ```bash
-sudo su
-cd /opt/vproutil
 ./installDocker.sh
 ```
 
 ## Just run this: Default (automated)...
 
 ```bash
-sudo su
-cd /opt/vproutil
 ./install.sh --default
 ```
 
 ## Just run this: Default (manual)...
 
 ```bash
-sudo su
-cd /opt/vproutil
 mv default-env .env
 vi .env
 docker build -t vproutil:1.15.1 .
@@ -255,8 +284,6 @@ docker compose up
 ## Just run this: EMA...
 
 ```bash
-sudo su
-cd /opt/vproutil
 ./install.sh --ema
 ```
 
