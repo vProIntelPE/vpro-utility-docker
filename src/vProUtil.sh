@@ -284,7 +284,6 @@ amtactivate() {
         sleep 1
         # Check the RPC log to see if the profile ID was correct and run again if it was not
         # This is a temporary workaround - will be replaced with a more elegent solution
-        ((profileAttempt++))
         until [[ $profileAttempt -gt 3 || -z "$(cat ${rpcLog} | grep -o 'Profile not found')" ]]; do
             echo -e "It looks like we might need to try a different profile name..." > /dev/console
             profileID="${tenantID}-${profileAttempt}"
@@ -306,7 +305,11 @@ execute_rpc() {
     rpcCmd="rpc activate -u wss://amt.endpointcloudservices.intel.com/activate -profile $profileID -tenant $tenantID -h $endpointID -n -v -skipamtcertcheck -json -echo-password -password $AMTPASSWORD"
     echo -e "Profile ID: $profileID\n RPC execution string: $rpcCmd\n" > /dev/console
     trap '$rpcCmd' EXIT 2>&1 | jq . | tee $rpcLog
-    sleep 0.250
+    echo -e "Waiting 5 seconds before checking status...\n" > /dev/console
+    sleep 5
+    rpcInfo="rpc amtinfo"
+    trap '$rpcInfo' EXIT 2>&1 | jq . | tee -a $rpcLog
+    sleep 2
     if [[ -n "$(cat $rpcLog | grep -o 'does not match list of available AMT profiles')" || -n "$(cat ${rpcLog} | grep -o 'interrupted system call')" ]]; then
         echo -e "Profile not found" > $rpcLog
         echo -e "Trying again..." > /dev/console
