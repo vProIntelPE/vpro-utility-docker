@@ -16,6 +16,9 @@ default() {
     echo -e "\nService/container stopped...cleaning previous state cache (if it exists)..."
     rm -fR shared/data/*
     rm -fR shared/logs/*
+    echo -e "\nDisabling service to enable container config control of restart behavior..."
+    systemctl disable vProHostSvc.service 2> /dev/null
+    sleep 0.5
     if [[ "$runParam" == "--reset" ]]; then
         if [[ "$(ls -la shared/.UsedToken)" ]]; then
             mv shared/.UsedToken shared/PairingToken
@@ -23,9 +26,7 @@ default() {
     fi
     echo -e "\nSleeping for 5 seconds before starting up again..."
     sleep 5
-    systemctl start vProHostSvc
-    echo -e "Started the Intel(R) vPro Utility for Linux container!"
-    sleep 1 && docker logs -f -n 10 vproutil-default
+    echo -e "Started the Intel(R) vPro Utility for Linux container!" && docker compose up
 }
 
 ema() {
@@ -42,12 +43,14 @@ ema() {
     echo -e "\nSleeping for 5 seconds before starting up again..."
     sleep 5
     systemctl restart getty@ttyV0
-    systemctl start vProHostSvc
+    systemctl enable --now vProHostSvc
     echo -e "Started the Intel(R) Endpoint Management Assistant vAgent for Linux container!"
     sleep 1 && docker logs -f -n 10 vproutil-ema
 }
 # Just in case we did something manually before toggling it over
 systemctl daemon-reload
+# Make sure we are in the correct directory...
+cd /opt/vproutil
 
 if [[ "$action" == "--ema" ]]; then
     tput clear

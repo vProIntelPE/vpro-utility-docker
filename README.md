@@ -108,6 +108,8 @@ Cloning this GitHub repo into the folder created in step 1 will provide the fold
 
 ```bash
 cd /opt/vproutil && git clone --filter=blob:none https://github.com/vProIntelPE/vpro-utility-docker .
+# OPTIONAL: It may be necessary to disable Git LFS if the clone process becomes unresponsive
+# GIT_LFS_SKIP_SMUDGE=1 git clone --filter=blob:none https://github.com/vProIntelPE/vpro-utility-docker .
 # OPTIONAL: use the Docker install script to install the official packages if needed
 # ./installDocker.sh
 ```
@@ -201,6 +203,8 @@ Cloning this GitHub repo into the folder created in step 1 will provide the fold
 
 ```bash
 cd /opt/vproutil && git clone --filter=blob:none https://github.com/vProIntelPE/vpro-utility-docker .
+# OPTIONAL: It may be necessary to disable Git LFS if the clone process becomes unresponsive
+# GIT_LFS_SKIP_SMUDGE=1 git clone --filter=blob:none https://github.com/vProIntelPE/vpro-utility-docker .
 # OPTIONAL: use the Docker install script to install the official packages if needed
 # ./installDocker.sh
 ```
@@ -236,6 +240,7 @@ sudo su
 mkdir /opt/vproutil
 cd /opt/vproutil
 git clone --filter=blob:none https://github.com/vProIntelPE/vpro-utility-docker .
+# GIT_LFS_SKIP_SMUDGE=1 git clone --filter=blob:none https://github.com/vProIntelPE/vpro-utility-docker .
 cp /tmp/PairingToken /opt/vproutil/shared/
 ./installDocker.sh
 ./install.sh --default
@@ -247,6 +252,7 @@ sudo su
 mkdir /opt/vproutil
 cd /opt/vproutil
 git clone --filter=blob:none https://github.com/vProIntelPE/vpro-utility-docker .
+# GIT_LFS_SKIP_SMUDGE=1 git clone --filter=blob:none https://github.com/vProIntelPE/vpro-utility-docker .
 # copy EmaAgent files to install folder
 cp /tmp/EmaAgent.* /opt/vproutil/shared/
 # create Windows 11 license key text file - replace with your key
@@ -265,6 +271,7 @@ sudo su
 mkdir /opt/vproutil
 cd /opt/vproutil
 git clone --filter=blob:none https://github.com/vProIntelPE/vpro-utility-docker .
+# GIT_LFS_SKIP_SMUDGE=1 git clone --filter=blob:none https://github.com/vProIntelPE/vpro-utility-docker .
 # PairingToken/EmaAgent cp/mv command should be added here if developing a deployment script/flow
 # Example:
 #  cp /tmp/PairingToken /opt/vproutil/shared/ # VFS

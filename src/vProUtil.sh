@@ -256,8 +256,9 @@ amtactivate() {
             fi
         fi
 
+        profileAttempt=1
         tenantID="$(echo $endpointID | grep -o -E '(\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{8}\b)')"
-        profileID="${tenantID}-1"
+        profileID="${tenantID}-${profileAttempt}"
         # Un-comment the next 5 lines for troubleshooting
 	# echo $endpointID > /dev/console
 	# echo $tenantID > /dev/console
@@ -274,17 +275,17 @@ amtactivate() {
         fi
 
         # Otherwise, let's give it a shot...
-        stampDate=$(date --utc --iso-8601 seconds | grep -o -E '[0-9]{4}(\-[0-9]{2}){2}T[0-9]{2}(\:[0-9]{2}){2}')
-        rpcLog="/agent/logs/rpc-action-${stampDate}.log}"
+        # stampDate=$(date --utc --iso-8601 seconds | grep -o -E '[0-9]{4}(\-[0-9]{2}){2}T[0-9]{2}(\:[0-9]{2}){2}')
+	stampDate=$(date +"%Y-%m-%dUTC%H:%M:%S")
+        rpcLog="/agent/logs/rpc-action-${stampDate}.log"
         touch $rpcLog
         sleep .5 && tail -F $rpcLog > /dev/console &
         execute_rpc
         sleep 1
         # Check the RPC log to see if the profile ID was correct and run again if it was not
         # This is a temporary workaround - will be replaced with a more elegent solution
-        profileAttempt=2
-        until [[ $profileAttempt -gt 3 || -z "$(cat ${rpcLog} | grep -o 'does not match list of available AMT profiles')" ]]
-        do
+        ((profileAttempt++))
+        until [[ $profileAttempt -gt 3 || -z "$(cat ${rpcLog} | grep -o 'Profile not found')" ]]; do
             echo -e "It looks like we might need to try a different profile name..." > /dev/console
             profileID="${tenantID}-${profileAttempt}"
             ((profileAttempt++))
@@ -303,7 +304,13 @@ amtactivate() {
 
 execute_rpc() {
     rpcCmd="rpc activate -u wss://amt.endpointcloudservices.intel.com/activate -profile $profileID -tenant $tenantID -h $endpointID -n -v -skipamtcertcheck -json -echo-password -password $AMTPASSWORD"
+    echo -e "Profile ID: $profileID\n RPC execution string: $rpcCmd\n" > /dev/console
     trap '$rpcCmd' EXIT 2>&1 | jq . | tee $rpcLog
+    sleep 0.250
+    if [[ -n "$(cat $rpcLog | grep -o 'does not match list of available AMT profiles')" || -n "$(cat ${rpcLog} | grep -o 'interrupted system call')" ]]; then
+        echo -e "Profile not found" > $rpcLog
+        echo -e "Trying again..." > /dev/console
+    fi
 }
 
 stop() {

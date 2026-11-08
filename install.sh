@@ -238,8 +238,12 @@ build_container() {
     draw_header
     tput cup 4 0
     tput ed
-    docker build -t vproutil:${softVer} .
-    echo -e "${grn}Done!\n"
+    if [[ -z "$(docker image ls vproutil:${softVer} --format '{{.Repository}}')" ]]; then
+        docker build -t vproutil:${softVer} .
+        echo -e "${grn}Container build done!\n${rst}"
+    else
+        echo -e "${grn}Image exists in local repository...skipping build...\n${rst}"
+    fi
 }
 
 install_services() {
