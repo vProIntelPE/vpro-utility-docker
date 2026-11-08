@@ -11,8 +11,8 @@ services:                                                           #
     image: vproutil:1.15.1                                          #
     container_name: vproutil-ema                                    #
     stop_signal: SIGRTMIN+3                                         #
-    environment:                                                    # .env file in this directory
-      VERSION: "core11"                                             #
+    environment:                                                    # .env file in this directory hosts
+      VERSION: "core11"                                             # the variable definitions
       RAM_SIZE: "4G"                                                #
       STORAGE: "/storage"                                           #
       DISK_SIZE: "16G"                                              # 16G is the minimum, reliable size
@@ -22,17 +22,17 @@ services:                                                           #
       HOST: "${HOSTNAME}"                                           #
       USERNAME: "${USERNAME}"                                       #
       PASSWORD: "${PASSWORD}"                                       #
-      DNSMASQ_OPTS: "${DNSMASQ_OPTS}"                               #
-      SHUTDOWN: "Y"                                                 #
+      DNSMASQ_OPTS: "${DNSMASQ_OPTS}"                               # reliable DNS suffix propogation
+      SHUTDOWN: "Y"                                                 # required for ACM provisioning
       TIMEOUT: "90"                                                 #
       ARGUMENTS: "${ARGUMENTS}"                                     #
-    networks:                                                       # reliable DNS suffix propogation
+    networks:                                                       #
       - vpronet                                                     #
     security_opt:                                                   #
       - apparmor=unconfined                                         #
-    extra_hosts:                                                    # Enables VM-to-host data share
+    extra_hosts:                                                    # enables VM-to-host data share
       - "host.docker.internal:host-gateway"                         #
-    devices:                                                        # The /dev directory is shared as a
+    devices:                                                        # the /dev directory is shared as a
       - /dev/vhost-net                                              #   volume however, these devices
       - /dev/kvm                                                    #   must use standard definition
       - /dev/net/tun                                                #
@@ -62,7 +62,7 @@ services:                                                           #
       - /sys/bus/mei:/sys/bus/mei:rw                                # |
       - /sys/bus/pci/drivers:/sys/bus/pci/drivers:rw                # |
       - /sys/module:/sys/module:rw                                  # |
-      - /sys/fs/cgroup:/sys/fs/cgroup:rw                            # hardware passing reqs.
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw                            # hardware pass-through reqs
     tmpfs:                                                          #
       - /run:exec,size=1024M                                        # supersede use of /run in source
     hostname: "${HOSTNAME}-con.${DNS_SUFFIX}"                       # ACM provisioning req (DNS suffix)
@@ -77,6 +77,6 @@ services:                                                           #
       - 'c *:* rwm'                                                 # |
                                                                     # |
 networks:                                                           # |
-  vpronet:                                                          # these options can not change much
-    driver: bridge                                                  #   Hostname and DNS suffix MUST be
-    name: vpro-net                                                  #   correct for ACM
+  vpronet:                                                          # these are the parameters found to
+    driver: bridge                                                  # function the best but it is possible
+    name: vpro-net                                                  # there are other, even better options
