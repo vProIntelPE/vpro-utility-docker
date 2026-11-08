@@ -99,7 +99,7 @@ Restart=always
 WorkingDirectory=/opt/vproutil
 ExecStartPre=/bin/bash -c "/opt/vproutil/src/vProUtil.sh vconsole &"
 ExecStart=/usr/bin/docker compose up
-ExecStop=/bin/bash -c "cp storage/data.img storage/.data.img"
+# ExecStop=/bin/bash -c "cp storage/data.qcow2 storage/.data.qcow2"
 ExecStop=/usr/bin/docker compose down -v
 
 [Install]
@@ -317,9 +317,9 @@ vconsole() {
         return
     fi
     echo -e "GETTY on ttyV0 will restart as soon as the vAgent is online..."
-    sleep 5
+    sleep 10
     while true; do 
-        containerType=$(docker ps --format '{{.Names}}' | grep -o -w "ema")
+        containerType=$(docker ps --format '{{.Names}}' 2> /dev/null | grep -o -w "ema")
         if [[ "$containerType" == "ema" ]]; then
             echo -e "Looks like the vAgent is online...waiting a few more seconds before vConsole init..."
             sleep 10
@@ -340,10 +340,10 @@ vconsole_hdd() {
     fi
     # Watch container logs to trigger restoration of previous state
     while true; do
-        cReady=$(docker logs -n 10 vproutil-ema 2> /dev/null | grep -o "preallocated disk image in raw format...")
+        cReady=$(docker logs -n 10 vproutil-ema 2> /dev/null | grep -o "growable disk image in qcow2 format...")
         if [[ -n "$cReady" ]]; then
             echo -e "Restoring last saved state of vHDD"
-            cp storage/.data.img storage/data.img
+            cp storage/.data.qcow2 storage/data.qcow2
             echo -e "Holding until VM reaches ready state before restarting GETTY process"
             sleep 15
             systemctl restart getty@ttyV0
