@@ -87,6 +87,8 @@ install() {
             mv docker-compose.yaml unknown-dock-comp.yaml
         fi
         ln -sf composers/default.yaml docker-compose.yaml
+        sleep 1
+        docker compose up
     fi
 }
 
