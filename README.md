@@ -204,10 +204,15 @@ cd /opt/vproutil && git clone --filter=blob:none https://github.com/vProIntelPE/
 # OPTIONAL: use the Docker install script to install the official packages if needed
 # ./installDocker.sh
 ```
-### Step 3: Add the EmaAgent files...
+### Step 3: Add the EmaAgent files and Windows license...
 
 Log into your Intel(R) EMA web portal, navigate to endpoint groups, select the dropdown of the desired endpoint group and click "Create agent files".  Download both and copy them to the /opt/vproutil/shared directory.
 
+```bash
+cp /tmp/EmaAgent.* /opt/vproutil/shared/
+# create Windows 11 license key text file - replace with your key
+echo "11111-22222-33333-44444-55555" > /opt/vproutil/shared/key.txt
+```
 ### Step 4:
 Setting environment variables, building and launching the container is done in a single step with the following command:
 
@@ -242,7 +247,10 @@ sudo su
 mkdir /opt/vproutil
 cd /opt/vproutil
 git clone --filter=blob:none https://github.com/vProIntelPE/vpro-utility-docker .
+# copy EmaAgent files to install folder
 cp /tmp/EmaAgent.* /opt/vproutil/shared/
+# create Windows 11 license key text file - replace with your key
+echo "11111-22222-33333-44444-55555" > /opt/vproutil/shared/key.txt
 ./installDocker.sh
 ./install.sh --ema
 ```
