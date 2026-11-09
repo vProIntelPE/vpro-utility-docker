@@ -236,7 +236,8 @@ configure_amt() {
         sleep 2
 
 	cd /agent
-        endpointID="$(./IntelvProFleetServicesAgent endpoint-info | \
+        endpointInfo="$(./IntelvProFleetServicesAgent endpoint-info)"
+        endpointID="$(echo "$endpointInfo" | \
           grep -o -E '(\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{16}\b)')"
         sleep 0.500
 
@@ -248,14 +249,15 @@ configure_amt() {
             echo -e "Waiting 5 seconds before attempting to determine endpoint ID..." > /dev/console
             sleep 5
 
-            endpointID="$(./IntelvProFleetServicesAgent endpoint-info | \
+            endpointInfo="$(./IntelvProFleetServicesAgent endpoint-info)"
+            endpointID="$(echo "$endpointInfo" | \
               grep -o -E '(\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{16}\b)')"
             if [[ -z "$endpointID" ]]; then
                 echo -e "Too many failed attempts at determining endpoint ID...exiting!" > /dev/console
                 return
             fi
         fi
-
+        
         profileAttempt=1
         tenantID="$(echo $endpointID | grep -o -E '(\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{8}\b)')"
         profileID="${tenantID}-${profileAttempt}"
@@ -297,14 +299,22 @@ configure_amt() {
 
 execute_rpc() {
     mpsWSS="wss://amt.endpointcloudservices.intel.com/activate"
-    rpcCmd="rpc activate -u $mpsWSS -profile $profileID -tenant $tenantID -h $endpointID -n -v -skipamtcertcheck -json -password $AMTPASSWORD"
+    if [[ -n "$(echo "$endpointInfo" | grep -o 'https://zone')" ]]; then
+        rpcCmd="rpc activate -u $mpsWSS -profile $profileID -h $endpointID -n -v -skipamtcertcheck -json -password $AMTPASSWORD"
+    else
+        rpcCmd="rpc activate -u $mpsWSS -profile $profileID -tenant $tenantID -h $endpointID -n -v -skipamtcertcheck -json -password $AMTPASSWORD"
+    fi
     echo -e "Profile ID: $profileID\n RPC execution string: $rpcCmd\n" > /dev/console
     trap '$rpcCmd' EXIT 2>&1 | jq . | tee $rpcLog
     echo -e "Waiting 5 seconds before checking status...\n" > /dev/console
     sleep 5
+    # Parsing info twice to overcome what seems to be a race condition...
     rpcInfo="rpc amtinfo"
     trap '$rpcInfo' EXIT 2>&1 | jq . | tee -a $rpcLog
-    sleep 2
+    sleep 3
+    trap '$rpcInfo' EXIT 2>&1 | jq . | tee -a $rpcLog
+    sleep 3
+    echo -e "Checking status again..." > /dev/console
     if [[ -n "$(cat $rpcLog | grep -o 'does not match list of available AMT profiles')" \
       || -n "$(cat ${rpcLog} | grep -o 'interrupted system call')" ]]; then
         echo -e "Profile not found" > $rpcLog
