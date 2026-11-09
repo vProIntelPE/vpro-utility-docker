@@ -201,10 +201,10 @@ start() {
     systemctl enable --now lms
     echo -e "Waiting for a few more seconds and then looking for additional actions to perform..." > /dev/console
     sleep 2
-    amtactivate
+    configure_amt
 }
 
-amtactivate() {
+configure_amt() {
     # Enable/disable automatically going any further with the "readyToken" condition below
     #  - /shared/PairingToken hidden/removed: enables a minimal container
     #  - /shared/PairingToken available: normal operations
@@ -227,7 +227,7 @@ amtactivate() {
             return
         fi
 
-        # Assume adoption if we've made it to this point...
+        # Assume VFS adoption if we've made it to this point...
         cp /shared/PairingToken /agent 2> /dev/null
         sleep 0.250
         mv /shared/PairingToken /shared/.UsedToken 2> /dev/null
@@ -238,7 +238,7 @@ amtactivate() {
 	cd /agent
         endpointID="$(./IntelvProFleetServicesAgent endpoint-info | \
           grep -o -E '(\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{16}\b)')"
-        sleep 1
+        sleep 0.500
 
         if [[ -z "$endpointID" ]]; then
             # Blank endpoint ID means we need to try to create one
@@ -251,7 +251,7 @@ amtactivate() {
             endpointID="$(./IntelvProFleetServicesAgent endpoint-info | \
               grep -o -E '(\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{16}\b)')"
             if [[ -z "$endpointID" ]]; then
-                echo -e "Too many failed attempts...exiting!" > /dev/console
+                echo -e "Too many failed attempts at determining endpoint ID...exiting!" > /dev/console
                 return
             fi
         fi
@@ -259,37 +259,31 @@ amtactivate() {
         profileAttempt=1
         tenantID="$(echo $endpointID | grep -o -E '(\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{8}\b)')"
         profileID="${tenantID}-${profileAttempt}"
-        # Un-comment the next 5 lines for troubleshooting
-	# echo $endpointID > /dev/console
-	# echo $tenantID > /dev/console
-	# echo $profileID > /dev/console
-	# echo $AMTPASSWORD > /dev/console
-	# sleep 5
-        echo -e "We'll wait for 5 seconds and then try to adopt the endpoint..." > /dev/console
-        sleep 5
+        echo -e "Attempting to adopt this endpoint by re-configuring with VFS parameters..." > /dev/console
+        sleep 1
 
-        # Just in case anything is blank, bugout
+        # Just in case anything is blank, abort
         if [[ -z "$endpointID" || -z "$tenantID" || -z "$profileID" || -z "$AMTPASSWORD" ]]; then
             echo -e "Something went wrong and we didn't get all the info we need...exiting." > /dev/console
             return
         fi
-
-        # Otherwise, let's give it a shot...
-        # stampDate=$(date --utc --iso-8601 seconds | grep -o -E '[0-9]{4}(\-[0-9]{2}){2}T[0-9]{2}(\:[0-9]{2}){2}')
-	stampDate=$(date +"%Y-%m-%dUTC%H:%M:%S")
+        # Start RPC logging...
+       	stampDate=$(date +"%Y-%m-%dUTC%H:%M:%S")
         rpcLog="/agent/logs/rpc-action-${stampDate}.log"
         touch $rpcLog
         sleep .5 && tail -F $rpcLog > /dev/console &
+        # Call RPC function with the parameters to adopt the endpoint...
         execute_rpc
         sleep 1
         # Check the RPC log to see if the profile ID was correct and run again if it was not
-        # This is a temporary workaround - will be replaced with a more elegent solution
+        # Profile determination via looping try -> pass/fail will be replaced in the future
         until [[ $profileAttempt -gt 3 || -z "$(cat ${rpcLog} | grep -o 'Profile not found')" ]]; do
             echo -e "It looks like we might need to try a different profile name..." > /dev/console
             profileID="${tenantID}-${profileAttempt}"
             ((profileAttempt++))
             sleep 1
             execute_rpc
+            sleep 1
         done
         return
     fi
@@ -302,7 +296,8 @@ amtactivate() {
 }
 
 execute_rpc() {
-    rpcCmd="rpc activate -u wss://amt.endpointcloudservices.intel.com/activate -profile $profileID -tenant $tenantID -h $endpointID -n -v -skipamtcertcheck -json -echo-password -password $AMTPASSWORD"
+    mpsWSS="wss://amt.endpointcloudservices.intel.com/activate"
+    rpcCmd="rpc activate -u $mpsWSS -profile $profileID -tenant $tenantID -h $endpointID -n -v -skipamtcertcheck -json -password $AMTPASSWORD"
     echo -e "Profile ID: $profileID\n RPC execution string: $rpcCmd\n" > /dev/console
     trap '$rpcCmd' EXIT 2>&1 | jq . | tee $rpcLog
     echo -e "Waiting 5 seconds before checking status...\n" > /dev/console
@@ -310,7 +305,8 @@ execute_rpc() {
     rpcInfo="rpc amtinfo"
     trap '$rpcInfo' EXIT 2>&1 | jq . | tee -a $rpcLog
     sleep 2
-    if [[ -n "$(cat $rpcLog | grep -o 'does not match list of available AMT profiles')" || -n "$(cat ${rpcLog} | grep -o 'interrupted system call')" ]]; then
+    if [[ -n "$(cat $rpcLog | grep -o 'does not match list of available AMT profiles')" \
+      || -n "$(cat ${rpcLog} | grep -o 'interrupted system call')" ]]; then
         echo -e "Profile not found" > $rpcLog
         echo -e "Trying again..." > /dev/console
     fi

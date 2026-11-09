@@ -166,8 +166,11 @@ check_env() {
     # Check the .env file and update if the min required values are missing
     if [[ -z "$(cat .env 2> /dev/null | grep -w "^HOSTNAME" 2> /dev/null)" ]]; then
         echo -e "${cya}Performing some discovery and updating environment file...${rst}"
-        envTemp=$(<default-env)
-        source src/vProUtil.sh find_addr
+        if [[ "$installType" == "--ema" ]]; then
+            envTemp=$(<ema-env)
+        else
+            envTemp=$(<default-env)
+        fi
         echo "HOSTNAME=\"$(hostname)\"" > .env
         if [[ -n "$(hostname -d)" ]]; then
             echo "DNS_SUFFIX=\"$(hostname -d)\"" >> .env

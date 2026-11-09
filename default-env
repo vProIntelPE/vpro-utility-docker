@@ -2,8 +2,3 @@ USERNAME="vpro"
 PASSWORD="!sh0uldB3ch@nged"
 DNSMASQ_OPTS="--domain=${DNS_SUFFIX}"
 AMTPASSWORD="NotAG00dP@ssw0rd"
-ARGUMENTS="\
-    -device vfio-pci,host=${MEADDR} \
-    -device vfio-pci,host=${SOLADDR} \
-    -smbios type=11,value=\"FQDN=${HOSTNAME}\" \
-    -serial /dev/ttyV2"
