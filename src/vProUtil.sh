@@ -281,8 +281,8 @@ configure_amt() {
         # Profile determination via looping try -> pass/fail will be replaced in the future
         until [[ $profileAttempt -gt 3 || -z "$(cat ${rpcLog} | grep -o 'Profile not found')" ]]; do
             echo -e "It looks like we might need to try a different profile name..." > /dev/console
-            profileID="${tenantID}-${profileAttempt}"
             ((profileAttempt++))
+            profileID="${tenantID}-${profileAttempt}"
             sleep 1
             execute_rpc
             sleep 1
@@ -298,6 +298,7 @@ configure_amt() {
 }
 
 execute_rpc() {
+    tlsAttempt=0
     mpsWSS="wss://amt.endpointcloudservices.intel.com/activate"
     if [[ -n "$(echo "$endpointInfo" | grep -o 'https://zone')" ]]; then
         rpcCmd="rpc activate -u $mpsWSS -profile $profileID -h $endpointID -n -v -skipamtcertcheck -json -password $AMTPASSWORD"
@@ -315,8 +316,25 @@ execute_rpc() {
     trap '$rpcInfo' EXIT 2>&1 | jq . | tee -a $rpcLog
     sleep 3
     echo -e "Checking status again..." > /dev/console
-    if [[ -n "$(cat $rpcLog | grep -o 'does not match list of available AMT profiles')" \
-      || -n "$(cat ${rpcLog} | grep -o 'interrupted system call')" ]]; then
+    if [[ -n "$(cat ${rpcLog} | grep -o 'interrupted system call')" ]]; then
+        rpcCmdTls="${rpcCmd} -tls-tunnel"
+        sleep 1
+        echo -e "Trying again with a TLS tunnel..." > /dev/console
+        echo -e "Profile ID: $profileID\n RPC execution string: $rpcCmdTls\n" > /dev/console
+        trap '$rpcCmdTls' EXIT 2>&1 | jq . | tee $rpcLog
+        echo -e "Waiting 5 seconds before checking status...\n" > /dev/console
+        sleep 5
+        trap '$rpcInfo' EXIT 2>&1 | jq . | tee -a $rpcLog
+        sleep 3
+        trap '$rpcInfo' EXIT 2>&1 | jq . | tee -a $rpcLog
+        sleep 3
+        echo -e "Checking status again..." > /dev/console
+        if [[ -n "$(cat ${rpcLog} | grep -o 'interrupted system call')" ]]; then
+            echo -e "does not match list of available AMT profiles" > $rpcLog
+            sleep 2
+        fi
+    fi
+    if [[ -n "$(cat $rpcLog | grep -o 'does not match list of available AMT profiles')" ]]; then
         echo -e "Profile not found" > $rpcLog
         echo -e "Trying again..." > /dev/console
     fi
