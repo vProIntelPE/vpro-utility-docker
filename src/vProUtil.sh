@@ -352,17 +352,16 @@ vconsole() {
     fi
     echo -e "GETTY on ttyV0 will restart as soon as the vAgent is online..."
     sleep 10
+    containerType=$(docker ps --format '{{.Names}}' 2> /dev/null | grep -o "ema")
     while true; do 
-        containerType=$(docker ps --format '{{.Names}}' 2> /dev/null | grep -o -w "ema")
-        if [[ "$containerType" == "ema" ]]; then
-            echo -e "Looks like the vAgent is online...waiting a few more seconds before vConsole init..."
-            sleep 10
-            systemctl restart getty@ttyV0
-            echo -e "vConsole init, done!"
+        if [[ -z "$containerType" ]]; then
             sleep 1
-            break
+            containerType=$(docker ps --format '{{.Names}}' 2> /dev/null | grep -o "ema")
         else
-            sleep 5
+            echo -e "Looks like the vAgent is online...waiting a few more seconds before vConsole init..."
+            sleep 15
+            systemctl restart getty@ttyV0
+            break
         fi
     done
 }
