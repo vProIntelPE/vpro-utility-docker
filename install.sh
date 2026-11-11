@@ -46,11 +46,11 @@ install() {
     if [[ "$installType" == "--ema" ]]; then
         echo -e "${grn}Welcome to the Intel(R) vPro utility for Linux - Intel(R) Endpoint Management Assistant version!\n"
         echo -e "${wht}The system may need configuration changes in order to support the Intel(R) EMA vAgent\nand some of these changes may require a reboot.\n"
+        sleep 3
+        check_boot
     else
         echo -e "${grn}Welcome to the Intel(R) vPro utility for Linux!\n"
         echo -e "${wht}\n\nNOTE: Execute this script with \"--ema\" if Intel(R) Endpoint Management Assistant support is required now or in the future.\nPress CTRL-C to halt here and start again...(resuming in 3 seconds)"
-        sleep 3
-        check_boot
     fi
     sleep 3
     check_lms
