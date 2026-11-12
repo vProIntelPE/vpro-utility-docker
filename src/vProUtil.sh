@@ -295,14 +295,14 @@ configure_amt() {
         #     execute_rpc
         #     sleep 1
         # done
-	if [[ -n "$(cat ${rpcLog} | grep -o 'does not exist')" ]]; then
+	if [[ -n "$(cat ${rpcLog} | grep -o 'does not match')" ]]; then
             if [[ "$profileAttempt" == "1" ]]; then
                 echo -e "\nThe device appears to be activated in CCM but we are unable to locate a CCM profile in VFS." > /dev/console
             fi
 	    if [[ "$profileAttempt" == "2" ]]; then
                 echo -e "\nThe device appears to be activated in ACM but we are unable to locate a ACM profile in VFS." > /dev/console
             fi
-	elif [[ -n "$(cat ${rpcLog} | grep -o 'already activated in')" ]]; then
+	elif [[ -n "$(cat ${rpcLog} | grep -o 'Already enabled in')" ]]; then
             echo -e "\nWaiting 10 seconds to check activation status in firmware..." > /dev/console
 	    sleep 10
             amtState=$(rpc amtinfo)
@@ -325,7 +325,7 @@ configure_amt() {
 
 execute_rpc() {
     mpsWSS="wss://amt.endpointcloudservices.intel.com/activate"
-    if [[ -n "$(echo "$endpointInfo" | grep -o 'https://zone')" ]]; then
+    if [[ -n "$(echo "$endpointInfo" | grep -o 'https://zone')" && "$profileAttempt" == "1" ]]; then
         rpcCmd="rpc activate -u $mpsWSS -profile $profileID -h $endpointID -n -v -skipamtcertcheck -json -password $AMTPASSWORD"
     else
         rpcCmd="rpc activate -u $mpsWSS -profile $profileID -tenant $tenantID -h $endpointID -n -v -skipamtcertcheck -json -password $AMTPASSWORD"
