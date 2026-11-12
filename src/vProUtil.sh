@@ -213,8 +213,9 @@ configure_amt() {
     # Check current provisioning status as our first step
     #  - pre-provisiong state -> send to vfs_activation
     #  - provisioned in ... -> try to adopt if we have or can create an ID (beta)
-    preState=$(rpc amtinfo | grep -o -w "pre-provisioning state")
-    postState=$(rpc amtinfo | grep -o -w "activated in") 
+    amtState=$(rpc amtinfo)
+    preState=$(echo "$amtState" | grep -o -w "pre-provisioning state")
+    postState=$(echo "$amtState" | grep -o -w "activated in") 
     readyToken=$(ls -l /shared 2> /dev/null | grep -o -w "PairingToken")
     if [[ -n "$readyToken" && -n "$preState" ]]; then
         # If there is a token and un-provisioned state, send to normal activation
@@ -258,7 +259,14 @@ configure_amt() {
             fi
         fi
         
-        profileAttempt=1
+	if [[ -n "$(echo \"$amtState\" | grep -o 'client')" ]]; then
+	    profileAttempt=1
+	elif [[ -n "$(echo \"$amtState\" | grep -o 'admin')" ]]; then
+            profileAttempt=2
+	else
+            echo -e "Unable to determine AMT's current activation state so that we know which profile to try.  Exiting..." > /dev/console
+	    return
+	fi
         tenantID="$(echo $endpointID | grep -o -E '(\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{8}\b)')"
         profileID="${tenantID}-${profileAttempt}"
         echo -e "Attempting to adopt this endpoint by re-configuring with VFS parameters..." > /dev/console
@@ -279,14 +287,32 @@ configure_amt() {
         sleep 1
         # Check the RPC log to see if the profile ID was correct and run again if it was not
         # Profile determination via looping try -> pass/fail will be replaced in the future
-        until [[ $profileAttempt -gt 3 || -z "$(cat ${rpcLog} | grep -o 'Profile not found')" ]]; do
-            echo -e "It looks like we might need to try a different profile name..." > /dev/console
-            ((profileAttempt++))
-            profileID="${tenantID}-${profileAttempt}"
-            sleep 1
-            execute_rpc
-            sleep 1
-        done
+        # until [[ $profileAttempt -gt 3 || -z "$(cat ${rpcLog} | grep -o 'Profile not found')" ]]; do
+        #     echo -e "It looks like we might need to try a different profile name..." > /dev/console
+        #     ((profileAttempt++))
+        #     profileID="${tenantID}-${profileAttempt}"
+        #     sleep 1
+        #     execute_rpc
+        #     sleep 1
+        # done
+	if [[ -n "$(cat ${rpcLog} | grep -o 'does not exist')" ]]; then
+            if [[ "$profileAttempt" == "1" ]]; then
+                echo -e "\nThe device appears to be activated in CCM but we are unable to locate a CCM profile in VFS." > /dev/console
+            fi
+	    if [[ "$profileAttempt" == "2" ]]; then
+                echo -e "\nThe device appears to be activated in ACM but we are unable to locate a ACM profile in VFS." > /dev/console
+            fi
+	elif [[ -n "$(cat ${rpcLog} | grep -o 'already activated in')" ]]; then
+            echo -e "\nWaiting 10 seconds to check activation status in firmware..." > /dev/console
+	    sleep 10
+            amtState=$(rpc amtinfo)
+	    sleep 1
+	    if [[ -n "$(echo \"$amtState\" | grep -o 'endpointcloudservices.intel.com')" ]]; then
+                echo -e "\nSuccessfully configured AMT to use vPro Fleet Services!" > /dev/console
+            else
+                echo -e "\nAMT does not appear to be configured correctly.  Please review logs and verify that endpoint groups are properly configured for ACM and/or CCM" > /dev/console
+            fi
+        fi
         return
     fi
     if [[ -z "$readyToken" ]]; then
@@ -298,7 +324,6 @@ configure_amt() {
 }
 
 execute_rpc() {
-    tlsAttempt=0
     mpsWSS="wss://amt.endpointcloudservices.intel.com/activate"
     if [[ -n "$(echo "$endpointInfo" | grep -o 'https://zone')" ]]; then
         rpcCmd="rpc activate -u $mpsWSS -profile $profileID -h $endpointID -n -v -skipamtcertcheck -json -password $AMTPASSWORD"
@@ -307,36 +332,31 @@ execute_rpc() {
     fi
     echo -e "Profile ID: $profileID\n RPC execution string: $rpcCmd\n" > /dev/console
     trap '$rpcCmd' EXIT 2>&1 | jq . | tee $rpcLog
-    echo -e "Waiting 5 seconds before checking status...\n" > /dev/console
-    sleep 5
-    # Parsing info twice to overcome what seems to be a race condition...
+    echo -e "Restarting LMS before checking status...\n" > /dev/console
+    sleep 1
+    systemctl restart lms
+    echo -e "Waiting 2 seconds before checking status...\n" > /dev/console
+    sleep 2
     rpcInfo="rpc amtinfo"
     trap '$rpcInfo' EXIT 2>&1 | jq . | tee -a $rpcLog
-    sleep 3
-    trap '$rpcInfo' EXIT 2>&1 | jq . | tee -a $rpcLog
-    sleep 3
-    echo -e "Checking status again..." > /dev/console
+    sleep 5
+    echo -e "Parsing log..." > /dev/console
+    # A system call interuption may indicate a TLS-tunnel requirement so we'll make another attempt using that parameter
     if [[ -n "$(cat ${rpcLog} | grep -o 'interrupted system call')" ]]; then
         rpcCmdTls="${rpcCmd} -tls-tunnel"
         sleep 1
         echo -e "Trying again with a TLS tunnel..." > /dev/console
         echo -e "Profile ID: $profileID\n RPC execution string: $rpcCmdTls\n" > /dev/console
         trap '$rpcCmdTls' EXIT 2>&1 | jq . | tee $rpcLog
-        echo -e "Waiting 5 seconds before checking status...\n" > /dev/console
+        echo -e "Restarting LMS before checking status...\n" > /dev/console
+        sleep 1
+        systemctl restart lms
+        echo -e "Waiting 2 seconds before checking status...\n" > /dev/console
+        sleep 2
+        rpcInfo="rpc amtinfo"
+        trap '$rpcInfo' EXIT 2>&1 | jq . | tee -a $rpcLog
         sleep 5
-        trap '$rpcInfo' EXIT 2>&1 | jq . | tee -a $rpcLog
-        sleep 3
-        trap '$rpcInfo' EXIT 2>&1 | jq . | tee -a $rpcLog
-        sleep 3
-        echo -e "Checking status again..." > /dev/console
-        if [[ -n "$(cat ${rpcLog} | grep -o 'interrupted system call')" ]]; then
-            echo -e "does not match list of available AMT profiles" > $rpcLog
-            sleep 2
-        fi
-    fi
-    if [[ -n "$(cat $rpcLog | grep -o 'does not match list of available AMT profiles')" ]]; then
-        echo -e "Profile not found" > $rpcLog
-        echo -e "Trying again..." > /dev/console
+        echo -e "Returning to main function for final log review..." > /dev/console
     fi
 }
 

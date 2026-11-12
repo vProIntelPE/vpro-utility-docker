@@ -46,8 +46,8 @@ install() {
     if [[ "$installType" == "--ema" ]]; then
         echo -e "${grn}Welcome to the Intel(R) vPro utility for Linux - Intel(R) Endpoint Management Assistant version!\n"
         echo -e "${wht}The system may need configuration changes in order to support the Intel(R) EMA vAgent\nand some of these changes may require a reboot.\n"
-        sleep 3
-        check_boot
+	sleep 3
+	check_boot
     else
         echo -e "${grn}Welcome to the Intel(R) vPro utility for Linux!\n"
         echo -e "${wht}\n\nNOTE: Execute this script with \"--ema\" if Intel(R) Endpoint Management Assistant support is required now or in the future.\nPress CTRL-C to halt here and start again...(resuming in 3 seconds)"
@@ -62,9 +62,6 @@ install() {
     build_container
     if [[ "$installType" == "--ema" ]]; then
         conType="vproutil-ema"
-        if [[ -n "$(ls -l | grep -o -w 'docker-compose.yaml')" ]]; then
-            mv docker-compose.yaml unknown-dock-comp.yaml
-        fi
         ln -sf composers/ema.yaml docker-compose.yaml 
         sleep 3
         download_core11
@@ -72,7 +69,6 @@ install() {
         clear
         install_services
         mkdir storage 2> /dev/null
-        truncate -s 16G storage/data.img 2> /dev/null
         if [[ "$rebootRequired" == "true" ]]; then
             echo -e "${yel}\n**** The system must be rebooted before the Intel(R) EMA vAgent can be used! ****${rst}"
             echo -e "${cya}\nAll script actions completed!  Intel(R) EMA vAgent is set to start automatically.${rst}"
@@ -83,9 +79,6 @@ install() {
         fi
     else
         conType="vproutil-default"
-        if [[ -n "$(ls -l | grep -o -w 'docker-compose.yaml')" ]]; then
-            mv docker-compose.yaml unknown-dock-comp.yaml
-        fi
         ln -sf composers/default.yaml docker-compose.yaml
         sleep 1
         docker compose up
@@ -118,8 +111,10 @@ check_boot() {
     tput ed
     if [ $(cat /etc/default/grub | grep "^GRUB_CMDLINE_LINUX" | grep -w "iommu=pt" | grep -c -w "intel_iommu=on") = 0 ]; then
         echo -e "${yel}\n\nKernel parameters must be updated: ${wht}A REBOOT WILL BE REQUIRED${rst}"
-        rebootRequired="true"
-        touch ./.rebootRequired
+	if [[ -z "$(echo "$@" | grep -o '\-\-noreboot')" ]]; then
+            rebootRequired="true"
+            touch ./.rebootRequired
+	fi
         sed -i.bak \
           -e 's/\(^GRUB_CMDLINE_LINUX_DEFAULT=".*\)"/\1 iommu=pt intel_iommu=on"/' \
           -e 's/\(^GRUB_CMDLINE_LINUX=".*\)"/\1 iommu=pt intel_iommu=on"/' \
