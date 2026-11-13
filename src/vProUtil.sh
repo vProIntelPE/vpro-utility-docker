@@ -13,7 +13,7 @@ set +a
 # Set a default password if none specified
 #
 if [[ -z "$AMTPASSWORD" ]]; then
-    AMTPASSWORD="NotAG00dP@ssw0rd"
+    AMTPASSWORD="P@ssw0rd"
 fi
 #
 #
@@ -99,8 +99,7 @@ Restart=always
 WorkingDirectory=/opt/vproutil
 ExecStartPre=/bin/bash -c "/opt/vproutil/src/vProUtil.sh vconsole &"
 ExecStart=/usr/bin/docker compose up
-# ExecStop=/bin/bash -c "cp storage/data.qcow2 storage/.data.qcow2"
-ExecStop=/usr/bin/docker compose down -v
+ExecStop=/usr/bin/docker compose down
 
 [Install]
 WantedBy=multi-user.target
@@ -111,11 +110,7 @@ EOF
 
 find_addr() {
     # Use lspci to attempt to locate Intel(R) ME devices in the same IOMMU group - if none
-    #   are found, revert to default values.
-    #
-    #   NOTE: falling back to default values is highly unlikely to succeed and is usually
-    #   indicative of an underlying compatibility issue.
-    #
+    #   are found, revert to default values (most likely fails with defaults).
     export mePCIrt=$(\
       lspci -nnk 2> /dev/null | \
       grep -w -E 'Communication controller \[[0-9]{4}\]\: Intel Corporation' | \
@@ -147,8 +142,7 @@ find_addr() {
 
 start_driver() {
     # Set driver overrides before appliance start
-    # Either host or container may have tried to start a process on the
-    #    SoL line - stop GETTY on ttyS4 if it is active
+    # Check for and stop anything using the SoL TTY
     if [[ "$(systemctl is-active getty@ttyS4)" == "active" ]]; then
         systemctl stop getty@ttyS4
     fi
@@ -159,19 +153,18 @@ start_driver() {
         driverctl set-override $mePCI  vfio-pci
         driverctl set-override $solPCI vfio-pci
     fi
-    echo "Driver overrides set"
+    echo -e "Driver overrides set"
 }
 
 stop_driver() {
     # Remove driver overrides gracefully
-    # Attempt to find addresses automatically
     find_addr
     sleep 1
     driverctl unset-override $mePCI
     driverctl unset-override $solPCI
-    echo -e "Driver overrides removed"
+    echo -e "Driver overrides removed" > /dev/console
     /bin/kill -9 $2
-    echo -e "Virtual serial lines removed"
+    echo -e "Virtual serial lines removed" > /dev/console
 }
 
 start_ema() {
@@ -196,167 +189,170 @@ stop_ema() {
 
 start() {
     # Default (non-Intel EMA) start function 
-    echo "Waiting for a few seconds to start LMS..." > /dev/console
+    echo -e "\n\nWaiting for a few seconds to start LMS...\n\n" > /dev/console
     sleep 5
     systemctl enable --now lms
-    echo -e "Waiting for a few more seconds and then looking for additional actions to perform..." > /dev/console
-    sleep 2
+    echo -e "\n\nLooking for additional actions to perform...\n\n" > /dev/console
+    sleep 5
     configure_amt
+    sleep 1
+    if [[ "$configResult" -eq "true" ]]; then
+        echo -e "\n\n\n\n\n\n\n\n\n\n\n\nIntel(R) AMT successfully configured!\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" > /dev/console
+        exit 0
+    elif [[ "$configResult" -eq "false" ]]; then
+        echo -e "\n\n\n\n\n\n\n\n\n\n\n\nFailed to configure AMT!  Please review logs and correct outstanding issues.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" > /dev/console
+        exit 1
+    fi
 }
 
 configure_amt() {
-    # Enable/disable automatically going any further with the "readyToken" condition below
-    #  - /shared/PairingToken hidden/removed: enables a minimal container
-    #  - /shared/PairingToken available: normal operations
-    #
-    # Begin conditional eval and automation
-    # Check current provisioning status as our first step
-    #  - pre-provisiong state -> send to vfs_activation
-    #  - provisioned in ... -> try to adopt if we have or can create an ID (beta)
-    amtState=$(rpc amtinfo)
+    # First step in configuring AMT for the default version of the utility
+    # Check state --> ready --> normal process
+    # **********************(beta)*********************************
+    # Check state --> already provisioned --> try to adopt into VFS
+    amtState="$(rpc amtinfo)"
     preState=$(echo "$amtState" | grep -o -w "pre-provisioning state")
     postState=$(echo "$amtState" | grep -o -w "activated in") 
     readyToken=$(ls -l /shared 2> /dev/null | grep -o -w "PairingToken")
     if [[ -n "$readyToken" && -n "$preState" ]]; then
-        # If there is a token and un-provisioned state, send to normal activation
+        # If there is a token and pre-provisioning state, cal standard activation
         vfs_activation
     elif [[ -n "$readyToken" && -n "$postState" ]]; then
-
-        vfsConfigured=$(rpc amtinfo 2> /dev/null | grep -o "endpointcloudservices.intel.com")
+        vfsConfigured="$(rpc amtinfo 2> /dev/null | grep -o 'endpointcloudservices.intel.com')"
         if [[ -n "$vfsConfigured" ]]; then
-            echo -e "Looks like we are already configured for VFS." > /dev/console
+            echo -e "\n\n\nLooks like we are already configured for VFS.\n\n\n" > /dev/console
             return
-        fi
+	fi
 
-        # Assume VFS adoption if we've made it to this point...
+	# Assume VFS adoption if we've made it to this point...
         cp /shared/PairingToken /agent 2> /dev/null
         sleep 0.250
         mv /shared/PairingToken /shared/.UsedToken 2> /dev/null
         sleep 0.250
-        echo "PairingToken found...launching the vPro Fleet Agent..." > /dev/console
-        sleep 2
+        echo -e "\n\n\nPairingToken found...launching the vPro Fleet Agent...\n\n\n" > /dev/console
+        sleep 0.250
 
+	# Begin VFS processes by executing the agent to create an enrollment
 	cd /agent
+        echo -e "Atttempting to create an endpoint ID...\n\n\n" > /dev/console
+        sleep 5 && tail -f /agent/logs/log* | jq . > /dev/console &
+        ./IntelvProFleetServicesAgent run --log-level=debug
+        echo -e "Waiting 5 seconds before checking endpoint ID...\n\n\n" > /dev/console
+        sleep 5
         endpointInfo="$(./IntelvProFleetServicesAgent endpoint-info)"
-        endpointID="$(echo "$endpointInfo" | \
-          grep -o -E '(\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{16}\b)')"
-        sleep 0.500
-
+        endpointID="$(echo "$endpointInfo" | grep -o -E '(\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{16}\b)')"
+	sleep 0.250
         if [[ -z "$endpointID" ]]; then
-            # Blank endpoint ID means we need to try to create one
-            echo -e "No endpoint ID found...attempting to create one..." > /dev/console
-            sleep 5 && tail -f /agent/logs/log* | jq . > /dev/console &
-              cd /agent && ./IntelvProFleetServicesAgent run --log-level=debug
-            echo -e "Waiting 5 seconds before attempting to determine endpoint ID..." > /dev/console
-            sleep 5
-
-            endpointInfo="$(./IntelvProFleetServicesAgent endpoint-info)"
-            endpointID="$(echo "$endpointInfo" | \
-              grep -o -E '(\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{16}\b)')"
-            if [[ -z "$endpointID" ]]; then
-                echo -e "Too many failed attempts at determining endpoint ID...exiting!" > /dev/console
-                return
-            fi
+          echo -e "\n\n\n\n\nUnable to create or find an endpoint ID...exiting.\n\n\n\n\n" > /dev/console
+          return
         fi
         
-	if [[ -n "$(echo \"$amtState\" | grep -o 'client')" ]]; then
+	# Evaluate activation state to define VFS profile requirements
+	if [[ -n "$(echo "$amtState" | grep -o 'client')" ]]; then
 	    profileAttempt=1
-	elif [[ -n "$(echo \"$amtState\" | grep -o 'admin')" ]]; then
+	elif [[ -n "$(echo "$amtState" | grep -o 'admin')" ]]; then
             profileAttempt=2
 	else
-            echo -e "Unable to determine AMT's current activation state so that we know which profile to try.  Exiting..." > /dev/console
+            echo -e "\n\n\n\n\nUnable to determine current activation state.  Exiting...\n\n\n\n\n" > /dev/console
 	    return
 	fi
+
+	# Trim endpoint ID for tenant and profile ID base, exit if required data is missing
         tenantID="$(echo $endpointID | grep -o -E '(\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{8}\b)')"
         profileID="${tenantID}-${profileAttempt}"
-        echo -e "Attempting to adopt this endpoint by re-configuring with VFS parameters..." > /dev/console
-        sleep 1
-
-        # Just in case anything is blank, abort
+        sleep 0.250
         if [[ -z "$endpointID" || -z "$tenantID" || -z "$profileID" || -z "$AMTPASSWORD" ]]; then
-            echo -e "Something went wrong and we didn't get all the info we need...exiting." > /dev/console
+            echo -e "Something went wrong and we didn't get all the info we need...exiting.\n\n" > /dev/console
             return
         fi
-        # Start RPC logging...
+
+        # Begin RPC executions and logging
+	echo -e "\n\nAttempting to adopt this endpoint by re-configuring with VFS parameters...\n\n" > /dev/console
        	stampDate=$(date +"%Y-%m-%dUTC%H:%M:%S")
         rpcLog="/agent/logs/rpc-action-${stampDate}.log"
         touch $rpcLog
-        sleep .5 && tail -F $rpcLog > /dev/console &
-        # Call RPC function with the parameters to adopt the endpoint...
-        execute_rpc
-        sleep 1
-        # Check the RPC log to see if the profile ID was correct and run again if it was not
-        # Profile determination via looping try -> pass/fail will be replaced in the future
-        # until [[ $profileAttempt -gt 3 || -z "$(cat ${rpcLog} | grep -o 'Profile not found')" ]]; do
-        #     echo -e "It looks like we might need to try a different profile name..." > /dev/console
-        #     ((profileAttempt++))
-        #     profileID="${tenantID}-${profileAttempt}"
-        #     sleep 1
-        #     execute_rpc
-        #     sleep 1
-        # done
-	if [[ -n "$(cat ${rpcLog} | grep -o 'does not match')" ]]; then
-            if [[ "$profileAttempt" == "1" ]]; then
-                echo -e "\nThe device appears to be activated in CCM but we are unable to locate a CCM profile in VFS." > /dev/console
+        sleep 0.500 && tail -F $rpcLog > /dev/console &
+        activateRun=1
+        mpsWSS="wss://amt.endpointcloudservices.intel.com/activate"
+        rpcBaseCmd="rpc activate -u $mpsWSS -profile $profileID -h $endpointID -n -skipamtcertcheck -json"
+	while ((activateRun < 5)); do
+            if ((activateRun >= 2)); then
+                echo -e "\n\nWaiting 15 seconds and then checking activation status...\n\n" > /dev/console
+                sleep 15
+                echo -e "\n\nChecking firmware activation state...\n\n" > /dev/console
+                check_cira
+	        sleep 0.500
+		logRot=$activateRun - 1
+                logBackup="${rpcLog}-${logRot}.log"
+                cp $rpcLog $logBackup 2> /dev/null
             fi
-	    if [[ "$profileAttempt" == "2" ]]; then
-                echo -e "\nThe device appears to be activated in ACM but we are unable to locate a ACM profile in VFS." > /dev/console
+	    if [[ -n "$(echo "$ciraHost" | grep -o 'endpointcloudservices.intel.com')" ]]; then
+                echo -e "\n\nIntel(R) AMT configured for vPro Fleet Services!\n\n" > /dev/console
+                configResult="true"
+                break
+	    else
+                echo -e "Checking number of attempts...\n" > /dev/console
+                if ((activateRun == 1)); then
+                    rpcCmd="${rpcBaseCmd} -password ${AMTPASSWORD}"
+                    echo -e "Attempt: $activateRun \n" > /dev/console
+                    rpc_run
+                elif ((activateRun == 2)); then
+                    rpcCmd="${rpcBaseCmd} -tenant ${tenantID} -password ${AMTPASSWORD}"
+                    echo -e "Attempt: $activateRun \n" > /dev/console
+                    rpc_run
+                elif ((activateRun == 3)); then
+                    rpcCmd="${rpcBaseCmd} -tls-tunnel -password ${AMTPASSWORD}"
+		    echo -e "Attempt: $activateRun \n" > /dev/console
+                    rpc_run
+                elif ((activateRun == 4)); then
+                    rpcCmd="${rpcBaseCmd} -tenant ${tenantID} -tls-tunnel -password ${AMTPASSWORD}"
+		    echo -e "Attempt: $activateRun \n" > /dev/console
+                    rpc_run
+		elif ((activateRun >= 5)); then
+                    echo -e "Attempt: $activateRun \n" > /dev/console
+                    echo -e "\n\nToo many failed attempts to activate.  Exiting...\n\n" > /dev/console
+                    echo -e "\n\nToo many failed attempts to activate.  Exiting...\n\n" >> $rpcLog
+                    configResult="false"
+                    break
+                fi
             fi
-	elif [[ -n "$(cat ${rpcLog} | grep -o 'Already enabled in')" ]]; then
-            echo -e "\nWaiting 10 seconds to check activation status in firmware..." > /dev/console
-	    sleep 10
-            amtState=$(rpc amtinfo)
-	    sleep 1
-	    if [[ -n "$(echo \"$amtState\" | grep -o 'endpointcloudservices.intel.com')" ]]; then
-                echo -e "\nSuccessfully configured AMT to use vPro Fleet Services!" > /dev/console
-            else
-                echo -e "\nAMT does not appear to be configured correctly.  Please review logs and verify that endpoint groups are properly configured for ACM and/or CCM" > /dev/console
-            fi
-        fi
+	    ((activateRun++))
+        done
+        configResult="false"
         return
     fi
     if [[ -z "$readyToken" ]]; then
-        echo "No PairingToken found so we'll assume that we are done!" > /dev/console
+        echo -e "\n\n\n\n\nNo pending activation actions...servicing Intel(R) LMS only.\n\n\n\n" > /dev/console
+        configResult="true"
         return
     fi
-    echo -e "Uh, not sure how we got here..." > /dev/console
+    echo -e "\n\n\n\n\nShould not have arrived here, no condition for it. Please confirm all requirements are met.\n\n\n\n" > /dev/console
+    configResult="false"
     return
 }
 
-execute_rpc() {
-    mpsWSS="wss://amt.endpointcloudservices.intel.com/activate"
-    if [[ -n "$(echo "$endpointInfo" | grep -o 'https://zone')" && "$profileAttempt" == "1" ]]; then
-        rpcCmd="rpc activate -u $mpsWSS -profile $profileID -h $endpointID -n -v -skipamtcertcheck -json -password $AMTPASSWORD"
-    else
-        rpcCmd="rpc activate -u $mpsWSS -profile $profileID -tenant $tenantID -h $endpointID -n -v -skipamtcertcheck -json -password $AMTPASSWORD"
-    fi
-    echo -e "Profile ID: $profileID\n RPC execution string: $rpcCmd\n" > /dev/console
+rpc_run() {
+    echo -e "\n\n\nProfile ID: $profileID\n RPC execution string: $rpcCmd \n\n\n" > /dev/console
     trap '$rpcCmd' EXIT 2>&1 | jq . | tee $rpcLog
-    echo -e "Restarting LMS before checking status...\n" > /dev/console
-    sleep 1
-    systemctl restart lms
-    echo -e "Waiting 2 seconds before checking status...\n" > /dev/console
+}
+
+check_cira() {
+    ciraHost="$(rpc amtinfo | grep '^RAS MPS Hostname' | grep -o -E '([a-zA-Z0-9\-]*)\.([a-zA-Z]*)\.([a-zA-Z]*).*')"
     sleep 2
-    rpcInfo="rpc amtinfo"
-    trap '$rpcInfo' EXIT 2>&1 | jq . | tee -a $rpcLog
-    sleep 5
-    echo -e "Parsing log..." > /dev/console
-    # A system call interuption may indicate a TLS-tunnel requirement so we'll make another attempt using that parameter
-    if [[ -n "$(cat ${rpcLog} | grep -o 'interrupted system call')" ]]; then
-        rpcCmdTls="${rpcCmd} -tls-tunnel"
-        sleep 1
-        echo -e "Trying again with a TLS tunnel..." > /dev/console
-        echo -e "Profile ID: $profileID\n RPC execution string: $rpcCmdTls\n" > /dev/console
-        trap '$rpcCmdTls' EXIT 2>&1 | jq . | tee $rpcLog
-        echo -e "Restarting LMS before checking status...\n" > /dev/console
-        sleep 1
-        systemctl restart lms
-        echo -e "Waiting 2 seconds before checking status...\n" > /dev/console
-        sleep 2
-        rpcInfo="rpc amtinfo"
-        trap '$rpcInfo' EXIT 2>&1 | jq . | tee -a $rpcLog
-        sleep 5
-        echo -e "Returning to main function for final log review..." > /dev/console
+    if [[ -z "$ciraHost" ]]; then
+        if [[ -n "$(cat $rpcLog | grep -o 'CIRA Connection:  Configured')" ]]; then
+            ciraHost="endpointcloudservices.intel.com"
+	    return
+	fi
+        echo -e "\n\n\nFirmware might still be busy...waiting 15 seconds and checking again...\n\n\n" > /dev/console
+        sleep 15
+	ciraHost="$(rpc amtinfo | grep '^RAS MPS Hostname' | grep -o -E '([a-zA-Z0-9\-]*)\.([a-zA-Z]*)\.([a-zA-Z]*).*')"
+	if [[ -z "$ciraHost" ]]; then
+            echo -e "\n\n\n\n\nUnable to get CIRA host from FW; usually indicates some other issue.\n\n\n\n\n" > /dev/console
+	    activateRun=5
+	fi
+    else
+        echo -e "\n\n\nCIRA host: $ciraHost\n\n\n" > /dev/console
     fi
 }
 
@@ -370,7 +366,7 @@ vconsole() {
     if [[ -n "$(ls -l docker-compose.yaml 2> /dev/null | grep -o -w 'default')" ]]; then
         return
     fi
-    echo -e "GETTY on ttyV0 will restart as soon as the vAgent is online..."
+    echo -e "\n\n\n\nGETTY on ttyV0 will restart as soon as the vAgent is online...\n\n\n\n" > /dev/console
     sleep 10
     containerType=$(docker ps --format '{{.Names}}' 2> /dev/null | grep -o "ema")
     while true; do 
@@ -378,7 +374,7 @@ vconsole() {
             sleep 1
             containerType=$(docker ps --format '{{.Names}}' 2> /dev/null | grep -o "ema")
         else
-            echo -e "Looks like the vAgent is online...waiting a few more seconds before vConsole init..."
+            echo -e "\n\n\nLooks like the vAgent is online...waiting a few more seconds before vConsole init...\n\n\n" > /dev/console
             sleep 15
             systemctl restart getty@ttyV0
             break
@@ -386,39 +382,7 @@ vconsole() {
     done
 }
 
-vconsole_hdd() {
-    # Check symlink compose file to see if we're needed
-    if [[ -n "$(ls -l docker-compose.yaml 2> /dev/null | grep -o -w 'default')" ]]; then
-        return
-    fi
-    # Watch container logs to trigger restoration of previous state
-    while true; do
-        cReady=$(docker logs -n 10 vproutil-ema 2> /dev/null | grep -o "growable disk image in qcow2 format...")
-        if [[ -n "$cReady" ]]; then
-            echo -e "Restoring last saved state of vHDD"
-            cp storage/.data.qcow2 storage/data.qcow2
-            echo -e "Holding until VM reaches ready state before restarting GETTY process"
-            sleep 15
-            systemctl restart getty@ttyV0
-            echo -e "Login daemon on vConsole restarted" 
-            break
-        else
-            # Just in case QEMU used the vHDD as-is, skip to restarting the vConsole login daemon
-            pastReady=$(docker logs -n 10 vproutil-ema 2> /dev/null | grep -o "Booting Windows")
-            if [[ -n "$pastReady" ]]; then
-                echo -e "Holding until VM reaches ready state before restarting GETTY process"
-                sleep 15
-                systemctl restart getty@ttyV0
-                echo -e "Login daemon on vConsole restarted"
-                break
-            else
-                sleep 0.250
-            fi
-        fi
-    done
-}
-
-# SOCAT virtual TTY lines
+# SOCAT virtual TTY lines for EMA version:
 #     ttyV0: host line passed back from container for GETTY binding
 #     ttyV1: mirrored to ttyV0, opened and  mirrored to ttyV2
 #     ttyV2: presented to VM appliance as COM2
