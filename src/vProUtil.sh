@@ -13,7 +13,7 @@ set +a
 # Set a default password if none specified
 #
 if [[ -z "$AMTPASSWORD" ]]; then
-    AMTPASSWORD="P@ssw0rd"
+    AMTPASSWORD="IGNORE"
 fi
 #
 #
@@ -34,6 +34,7 @@ vfs_activation() {
     echo -e "\n\n\n\n\n" > /dev/console
     if grep -q -m 1 -o "Activation result: Finished successfully" /agent/logs/*; then
         echo -e "Success! This device can now be managed in Intel(R) vPro Fleet Services!\n\n\n" > /dev/console
+        configResult="true"
     else
         echo -e "     **** This device was NOT able to be activated. ****\
           \n**** Please review the logs and resolve activation-blocking issues. ****" > /dev/console
@@ -47,6 +48,7 @@ vfs_activation() {
         echo "   - Port 4433 or 8443 blocked" > /dev/console
         echo -e "Review the guides in the vPro Fleet Services web portal for additional \
            troubleshooting information.\n\n\n" > /dev/console
+	configResult="false"
     fi
 }
 
@@ -189,18 +191,14 @@ stop_ema() {
 
 start() {
     # Default (non-Intel EMA) start function 
-    echo -e "\n\nWaiting for a few seconds to start LMS...\n\n" > /dev/console
-    sleep 5
     systemctl enable --now lms
-    echo -e "\n\nLooking for additional actions to perform...\n\n" > /dev/console
     sleep 5
     configure_amt
-    sleep 1
     if [[ "$configResult" -eq "true" ]]; then
-        echo -e "\n\n\n\n\n\n\n\n\n\n\n\nIntel(R) AMT successfully configured!\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" > /dev/console
+        echo -e "\n\n\n\n\n\n\n\n\nIntel(R) AMT successfully configured!\n\n\n\n\n\n\n\n\n\n\n\n\n\n" > /dev/console
         exit 0
     elif [[ "$configResult" -eq "false" ]]; then
-        echo -e "\n\n\n\n\n\n\n\n\n\n\n\nFailed to configure AMT!  Please review logs and correct outstanding issues.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" > /dev/console
+        echo -e "\n\n\n\n\n\n\n\n\nFailed to configure AMT!\nPlease review logs and correct any outstanding issues.\n\n\n\n\n\n\n\n\n\n\n\n\n\n" > /dev/console
         exit 1
     fi
 }
@@ -215,16 +213,23 @@ configure_amt() {
     postState=$(echo "$amtState" | grep -o -w "activated in") 
     readyToken=$(ls -l /shared 2> /dev/null | grep -o -w "PairingToken")
     if [[ -n "$readyToken" && -n "$preState" ]]; then
-        # If there is a token and pre-provisioning state, cal standard activation
+        # If there is a token and pre-provisioning state, call standard VFS activation
+        exeMode="vfs"
         vfs_activation
     elif [[ -n "$readyToken" && -n "$postState" ]]; then
+        # Checking additional parameters to validate next steps
         vfsConfigured="$(rpc amtinfo 2> /dev/null | grep -o 'endpointcloudservices.intel.com')"
         if [[ -n "$vfsConfigured" ]]; then
             echo -e "\n\n\nLooks like we are already configured for VFS.\n\n\n" > /dev/console
             return
 	fi
+        if [[ "$AMTPASSWORD" == "IGNORE" ]]; then
+            echo -e "\n\n\nIntel(R) AMT is configured by some other system but the admin password has not been defined.\nDefine the password in the .env file and restart this container to attempt adoption.\n\n\n\n" > /dev/console
+	    exit 0
+        fi
 
 	# Assume VFS adoption if we've made it to this point...
+        exeMode="adopt"
         cp /shared/PairingToken /agent 2> /dev/null
         sleep 0.250
         mv /shared/PairingToken /shared/.UsedToken 2> /dev/null
@@ -235,23 +240,31 @@ configure_amt() {
 	# Begin VFS processes by executing the agent to create an enrollment
 	cd /agent
         echo -e "Atttempting to create an endpoint ID...\n\n\n" > /dev/console
-        sleep 5 && tail -f /agent/logs/log* | jq . > /dev/console &
+	# Parse log for specific data...
+        sleep 5 && tail -f /agent/logs/log* | jq . \
+          | grep -o -E '(.*)\: (\"(\b[a-zA-Z0-9]{8}\b\.){2}(\b[a-zA-Z0-9]{16}\b))|(.*)\: (.*\:)(\/){2}([a-zA-Z0-9\.\-]*)' \
+          | sed 's/\"//g' > /dev/console &
+	# Log parsing set...kicking off agent process
         ./IntelvProFleetServicesAgent run --log-level=debug
-        echo -e "Waiting 5 seconds before checking endpoint ID...\n\n\n" > /dev/console
-        sleep 5
+        echo -e "\n\n\nChecking endpoint ID...\n\n\n" > /dev/console
+        sleep 1
         endpointInfo="$(./IntelvProFleetServicesAgent endpoint-info)"
-        endpointID="$(echo "$endpointInfo" | grep -o -E '(\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{16}\b)')"
-	sleep 0.250
+	endpointID="$(echo "$endpointInfo" | grep -o -E '((\b[a-zA-Z0-9]{8}\b\.){2}(\b[a-zA-Z0-9]{16}\b))')"
+        # endpointID="$(echo "$endpointInfo" | grep -o -E '(\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{16}\b)')"
+	sleep 0.500
         if [[ -z "$endpointID" ]]; then
-          echo -e "\n\n\n\n\nUnable to create or find an endpoint ID...exiting.\n\n\n\n\n" > /dev/console
+          echo -e "\n\n\n\n\nUnknown endpoint ID...exiting.\n\n\n\n\n" > /dev/console
           return
         fi
         
-	# Evaluate activation state to define VFS profile requirements
+	# Evaluate activation state to define profile requirements
+        # VFS adoption requires endpoint group and activation mode symmetry
+        #   profileID-1 --> CCM
+        #   profileID-2 --> ACM
 	if [[ -n "$(echo "$amtState" | grep -o 'client')" ]]; then
-	    profileAttempt=1
+	    profileMode=1
 	elif [[ -n "$(echo "$amtState" | grep -o 'admin')" ]]; then
-            profileAttempt=2
+            profileMode=2
 	else
             echo -e "\n\n\n\n\nUnable to determine current activation state.  Exiting...\n\n\n\n\n" > /dev/console
 	    return
@@ -259,37 +272,33 @@ configure_amt() {
 
 	# Trim endpoint ID for tenant and profile ID base, exit if required data is missing
         tenantID="$(echo $endpointID | grep -o -E '(\b[a-zA-Z0-9]{8}\b\.\b[a-zA-Z0-9]{8}\b)')"
-        profileID="${tenantID}-${profileAttempt}"
+        profileID="${tenantID}-${profileMode}"
         sleep 0.250
         if [[ -z "$endpointID" || -z "$tenantID" || -z "$profileID" || -z "$AMTPASSWORD" ]]; then
-            echo -e "Something went wrong and we didn't get all the info we need...exiting.\n\n" > /dev/console
+            echo -e "\n\n\n\nSomething went wrong and we didn't get all the info we need...exiting.\n\n\n\n" > /dev/console
             return
         fi
 
-        # Begin RPC executions and logging
-	echo -e "\n\nAttempting to adopt this endpoint by re-configuring with VFS parameters...\n\n" > /dev/console
-       	stampDate=$(date +"%Y-%m-%dUTC%H:%M:%S")
+        # Begin RPC execution and logging
+	echo -e "\n\n\n\nAttempting to adopt this endpoint into Intel(R) VFS...\n\n\n\n" > /dev/console
+       	stampDate=$(date +"%Y%m%dUTC%H%M")
         rpcLog="/agent/logs/rpc-action-${stampDate}.log"
         touch $rpcLog
         sleep 0.500 && tail -F $rpcLog > /dev/console &
         activateRun=1
         mpsWSS="wss://amt.endpointcloudservices.intel.com/activate"
-        rpcBaseCmd="rpc activate -u $mpsWSS -profile $profileID -h $endpointID -n -skipamtcertcheck -json"
+        rpcBaseCmd="rpc activate -u $mpsWSS -profile $profileID -h $endpointID -n -v -echo-password -skipamtcertcheck -json"
 	while ((activateRun < 5)); do
             if ((activateRun >= 2)); then
-                echo -e "\n\nWaiting 15 seconds and then checking activation status...\n\n" > /dev/console
-                sleep 15
-                echo -e "\n\nChecking firmware activation state...\n\n" > /dev/console
+                echo -e "\n\nWaiting 10 seconds and then checking activation status...\n\n" > /dev/console
+                sleep 10
                 check_cira
 	        sleep 0.500
-		logRot=$activateRun - 1
-                logBackup="${rpcLog}-${logRot}.log"
-                cp $rpcLog $logBackup 2> /dev/null
             fi
 	    if [[ -n "$(echo "$ciraHost" | grep -o 'endpointcloudservices.intel.com')" ]]; then
                 echo -e "\n\nIntel(R) AMT configured for vPro Fleet Services!\n\n" > /dev/console
                 configResult="true"
-                break
+                return
 	    else
                 echo -e "Checking number of attempts...\n" > /dev/console
                 if ((activateRun == 1)); then
@@ -313,22 +322,33 @@ configure_amt() {
                     echo -e "\n\nToo many failed attempts to activate.  Exiting...\n\n" > /dev/console
                     echo -e "\n\nToo many failed attempts to activate.  Exiting...\n\n" >> $rpcLog
                     configResult="false"
-                    break
+                    return
                 fi
             fi
+            logBackup="/agent/logs/rpc-${stampDate}-run${activateRun}.log"
+            cp $rpcLog $logBackup 2> /dev/null
 	    ((activateRun++))
         done
+	# This trap should be extraneous...
+        echo -e "\n\nToo many failed attempts to activate.  Exiting...\n\n" > /dev/console
+        echo -e "\n\nToo many failed attempts to activate.  Exiting...\n\n" >> $rpcLog
         configResult="false"
         return
     fi
     if [[ -z "$readyToken" ]]; then
-        echo -e "\n\n\n\n\nNo pending activation actions...servicing Intel(R) LMS only.\n\n\n\n" > /dev/console
+        echo -e "\n\n\n\n\nNo other actions...starting Intel(R) LMS only.\n\n\n\n" > /dev/console
         configResult="true"
+	exeMode="lms"
         return
     fi
-    echo -e "\n\n\n\n\nShould not have arrived here, no condition for it. Please confirm all requirements are met.\n\n\n\n" > /dev/console
-    configResult="false"
-    return
+    # One last trap...
+    if [[ -n "$exeMode" ]]; then
+        return
+    else
+        echo -e "\n\n\n\n\nNo condition to arrive here...please confirm all requirements are met.\n\n\n\n" > /dev/console
+        configResult="false"
+        return
+    fi
 }
 
 rpc_run() {
@@ -338,17 +358,19 @@ rpc_run() {
 
 check_cira() {
     ciraHost="$(rpc amtinfo | grep '^RAS MPS Hostname' | grep -o -E '([a-zA-Z0-9\-]*)\.([a-zA-Z]*)\.([a-zA-Z]*).*')"
-    sleep 2
+    sleep 1
     if [[ -z "$ciraHost" ]]; then
+        # Check the log to avoid excessive actions against the ME
         if [[ -n "$(cat $rpcLog | grep -o 'CIRA Connection:  Configured')" ]]; then
             ciraHost="endpointcloudservices.intel.com"
 	    return
 	fi
-        echo -e "\n\n\nFirmware might still be busy...waiting 15 seconds and checking again...\n\n\n" > /dev/console
-        sleep 15
+        echo -e "\n\n\nFirmware might be busy...waiting 10 seconds...\n\n\n" > /dev/console
+        sleep 10
 	ciraHost="$(rpc amtinfo | grep '^RAS MPS Hostname' | grep -o -E '([a-zA-Z0-9\-]*)\.([a-zA-Z]*)\.([a-zA-Z]*).*')"
+	sleep 1
 	if [[ -z "$ciraHost" ]]; then
-            echo -e "\n\n\n\n\nUnable to get CIRA host from FW; usually indicates some other issue.\n\n\n\n\n" > /dev/console
+            echo -e "\n\nCIRA host not found! Aborting activation attempts....\n\n\n\n" > /dev/console
 	    activateRun=5
 	fi
     else
