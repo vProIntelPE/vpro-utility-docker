@@ -16,8 +16,6 @@ services:                                                           #
       RAM_SIZE: "4G"                                                #
       STORAGE: "/storage"                                           #
       DISK_SIZE: "16G"                                              # 16G is the minimum, reliable size
-      DISK_FMT: "qcow2"                                             #
-      BOOT_MODE: "windows_secure"                                   #
       LOGO: "Y"                                                     #
       HOST: "${HOSTNAME}"                                           #
       USERNAME: "${USERNAME}"                                       #
