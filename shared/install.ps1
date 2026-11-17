@@ -10,11 +10,16 @@ Function Set-Console {
     regedit /s "$env:ProgramData\puTTY\puTTY.reg"
     Start-Sleep -Milliseconds 250
     Remove-Item "$env:ProgramData\puTTY\puTTY.reg" -Force
-    # Un-comment the next lines to change the shell to PowerShell
-    # Set-Content "$PSScriptRoot\console-shell.reg" -Value $consoleReg
-    # regedit /s "$PSScriptRoot\console-shell.reg"
-    # Start-Sleep -Milliseconds 250
-    # Remove-Item "$PSScriptRoot\console-shell.reg" -Force
+    # Comment the next lines to revert to explorer as the shell
+    Set-Content "$PSScriptRoot\console-shell.reg" -Value $consoleReg
+    regedit /s "$PSScriptRoot\console-shell.reg"
+    Start-Sleep -Milliseconds 250
+    Remove-Item "$PSScriptRoot\console-shell.reg" -Force
+    Try {
+        Start-Process msiexec.exe -ArgumentList "/i \\host.lan\data\puTTY\tightvnc.msi /qb" -NoNewWindow -Wait
+    } Catch {
+        Write-Host -ForegroundColor BLUE "A GUI console will not be available..."
+    }
 }
 
 Function Set-LMS {
@@ -62,8 +67,6 @@ Function Set-ProductKey {
             $keyInstall = "$keyInstall`n$($_.Exception.Message)"
         }
     }
-    # Uncomment the line below for troubleshooting
-    #Set-Content "$PSScriptRoot\key-path.txt" -Value $keyInstall
 }
 
 Function Set-PageFileOff {
@@ -92,8 +95,9 @@ Function Set-InstallAgent {
         Copy-Item "$PSScriptRoot\EmaAgent.*" "$emaAgentPath\" -Force
         Set-Location "$emaAgentPath"
         Start-Process "$emaAgentPath\EmaAgent.exe" -ArgumentList "-install" -WorkingDir "$emaAgentPath" -Wait -NoNewWindow
-        Start-Sleep -Milliseconds 250
-        Stop-Service EmaAgent
+        Start-Sleep -Milliseconds 100
+        Stop-Service EmaAgent -Force -NoWait
+        Get-Process EmaAgent -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
         Write-Host -ForegroundColor GREEN "`nvAgent installed!  Making a few more changes and then rebooting to finalize agent install."
     } Else {
         Write-Host -ForegroundColor BLUE "`n`nNo Intel(R) EMA agent or MSH file found!  Nothing else left but the reboot..."
@@ -101,12 +105,9 @@ Function Set-InstallAgent {
 }
 
 Function Set-Reboot {
-    Write-Host -ForegroundColor CYAN "`n`nDoing a little cleanup before we reboot..."
-    Start-Process Dism.exe -ArgumentList "/online /Cleanup-Image /StartComponentCleanup /ResetBase" -Wait -NoNewWindow
-    # Optional: change to a reboot rather than agent start if a "reboot pending" condition arises 
-    # Write-Host -ForegroundColor BLUE "`n`nREBOOTING NOW!"
-    # shutdown -r -t 10 -f
-    Start-Service EmaAgent
+    # Add final tasks to this function but a reboot reduces the chances that QEMU sees the VM setup as incomplete 
+    Write-Host -ForegroundColor BLUE "`n`nRebooting in 15 seconds!"
+    shutdown -r -t 15 -f
 }
 
 Function Main-Execution {
@@ -147,14 +148,12 @@ $profilePwrShell = @'
 #                                                                                      #
 # PowerShell profile to customize Intel(R) EMA vAgent for Linux full-screen console    #
 #                                                                                      #
-########################################################################################
-#
+#########################################################################################
 # Fullscreen UI customizations (remove title bar and controls)
 #
-Function Set-puttyUI {
-    # Get the handle of the current puTTY window
-    # $hwnd = (Get-Process puTTY).MainWindowHandle
-    $hwnd = ($puttyExecution).MainWindowHandle
+Function Set-consoleUI {
+    # Get the handle of the current console window
+    $hwnd = ($consoleExecution).MainWindowHandle
 
     if ($hwnd -ne [IntPtr]::Zero) {
         # GWL_STYLE = -16
@@ -179,13 +178,31 @@ Function Start-Console {
     For (;;) {
         Start-Process "$env:ProgramData\puTTY\puTTY.exe" -ArgumentList "-serial COM2 -sercfg 115200,8,n,1,N" -WindowStyle Maximized
         Start-Sleep 1
-        $script:puttyExecution = (Get-Process putty -ErrorAction SilentlyContinue)
-        If (!([string]::IsNullOrEmpty($puttyExecution))) {
-            Set-puttyUI
+        $script:consoleExecution = (Get-Process putty -ErrorAction SilentlyContinue)
+        If (!([string]::IsNullOrEmpty($consoleExecution))) {
+            Set-consoleUI
             Do {
-                $script:puttyExecution = (Get-Process putty -ErrorAction SilentlyContinue)
+                $script:consoleExecution = (Get-Process putty -ErrorAction SilentlyContinue)
                 Start-Sleep 2
-            } Until ([string]::IsNullOrEmpty($puttyExecution))
+            } Until ([string]::IsNullOrEmpty($consoleExecution))
+        }
+        Start-Sleep 1
+    }
+}
+
+# Create an infinite loop to keep console (TightVNC) open
+#
+Function Start-ConsoleGUI {
+    For (;;) {
+        Start-Process "$env:ProgramFiles\TightVNC\tvnviewer.exe" -ArgumentList "-host=host.docker.internal -port=5900 -fullscreen=yes -unencrypted=allow -warnfullscr=no" -WindowStyle Maximized
+        Start-Sleep 1
+        $script:consoleExecution = (Get-Process tvnviewer -ErrorAction SilentlyContinue)
+        If (!([string]::IsNullOrEmpty($consoleExecution))) {
+            Set-consoleUI
+            Do {
+                $script:consoleExecution = (Get-Process tvnviewer -ErrorAction SilentlyContinue)
+                Start-Sleep 2
+            } Until ([string]::IsNullOrEmpty($consoleExecution))
         }
         Start-Sleep 1
     }
@@ -221,7 +238,6 @@ public class WinAPI {
 # Add the API functions to the session
 Add-Type -TypeDefinition $sourceU32
 
-Start-Console
 '@
 
 $puttyReg = @'
