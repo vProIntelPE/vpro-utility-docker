@@ -106,6 +106,29 @@ Function Set-InstallAgent {
 
 Function Set-Reboot {
     # Add final tasks to this function but a reboot reduces the chances that QEMU sees the VM setup as incomplete 
+    # Disable sleep, hibernate, etc.
+    Try {
+        powercfg.exe /change standby-timeout-ac 0
+        powercfg.exe /change standby-timeout-dc 0
+        powercfg.exe /change monitor-timeout-ac 0
+        powercfg.exe /change monitor-timeout-dc 0
+        powercfg.exe /hibernate off
+    } Catch { }
+    $DeviceName = "Intel(R) Management Engine Interface #1"
+    Try {
+        $Device = Get-PnpDevice | Where-Object { $_.FriendlyName -eq $DeviceName }
+        Try {
+            If ($Device) {
+                Get-CimInstance -Namespace root\wmi -ClassName MSPower_DeviceEnable |
+                  Where-Object { $_.InstanceName -like "*$($Device.InstanceId)*" } |
+                  Set-CimInstance -Property @{ Enable = $false }
+            }
+        } Catch {
+            Write-Host -ForegroundColor DARKYELLOW "Looks like we weren't able to set power mgmt for the ME."
+        }
+    } Catch {
+        Write-Host -ForegroundColor DARKYELLOW "Looks like we weren't able to find the PnP properties for an ME device."
+    }
     Write-Host -ForegroundColor BLUE "`n`nRebooting in 15 seconds!"
     shutdown -r -t 15 -f
 }
@@ -128,7 +151,7 @@ $consoleReg = @'
 Windows Registry Editor Version 5.00
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon]
-"Shell"="PowerShell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -NoLogo"
+"Shell"="PowerShell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -NoLogo -Command Start-Console"
 '@
 
 $explorerReg = @'
