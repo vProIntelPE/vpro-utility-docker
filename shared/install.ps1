@@ -140,7 +140,7 @@ Windows Registry Editor Version 5.00
 
 $startBat = @'
 @echo off
-start /MAX "Intel(R) vProUtil console" PowerShell.exe -ExecutionPolicy Bypass -WindowStyle Minimized
+start /MAX "Intel(R) vProUtil console" PowerShell.exe -ExecutionPolicy Bypass -WindowStyle Minimized -Command "Start-Console"
 '@
 
 $profilePwrShell = @'
